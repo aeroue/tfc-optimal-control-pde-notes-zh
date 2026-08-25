@@ -1,0 +1,211 @@
+\chapter{从动态规划到黏性解}
+\lectureribbon{10}{HJB Equations, DPP and Stochastic Optimal Control V}{Andrzej Święch}
+\begin{learninggoals}
+\begin{itemize}
+  \item 把确定时刻 DPP 推广到停止时刻；
+  \item 理解测试函数“从上接触/从下接触”如何替代不存在的导数；
+  \item 从 DPP 推导 HJB 的黏性次解与上解不等式；
+  \item 用比较原理完成“值函数是唯一黏性解”的闭环。
+\end{itemize}
+\end{learninggoals}
+
+\section{停止时刻版动态规划}
+
+若 $\tau$ 是取值于 $[t,T]$ 的停止时刻，则强 Markov 思想给出
+\focusequation{停止时刻 DPP}{%
+\[
+V(t,x)=\inf_{\alpha}
+\E\!\left[
+\int_t^\tau f(s,X_s,\alpha_s)\dd s
++V(\tau,X_\tau)
+\right].
+\]}
+证明通常分两步：先对只取有限多个值的简单停止时刻逐层拼接，再用 $\tau_n\downarrow\tau$、状态估计和值函数连续性取极限。停止时刻 DPP 允许在“首次离开小邻域”时停止，是黏性解局部证明的关键。
+
+\begin{examplebox}[退出时刻]
+取圆柱邻域
+\[
+Q=(t_0,t_0+h)\times B_\rho(x_0),
+\]
+令 $\tau$ 为过程首次离开 $Q$ 的时刻与 $t_0+h$ 的较小者。测试函数只需在 $Q$ 内控制值函数，停止时刻保证 Itô 展开不会跑出这个局部区域。
+\end{examplebox}
+
+\section{为什么经典导数不够}
+
+即使 $b,\sigma,f,g$ 光滑，infimum 也可能使值函数出现折角：不同控制在状态空间的切换面上给出相同价值，但两侧梯度不同。HJB 需要二阶导数，值函数却可能只有连续性。黏性解的做法是：
+
+\begin{quote}
+\centering
+\emterm{不对粗糙的 $V$ 求导；只对与它相切的光滑函数 $\phi$ 求导。}
+\end{quote}
+
+定义
+\[
+\mathscr H(t,x,p,M)
+=\sup_{a\in A}\left\{
+-b(t,x,a)\cdot p
+-\frac12\Tr[\sigma\sigma^\top(t,x,a)M]
+-f(t,x,a)\right\}.
+\]
+HJB 写成适合比较理论的形式
+\focusequation{HJB 的 proper 形式}{%
+\[
+-\partial_tV+\mathscr H(t,x,DV,D^2V)=0,
+\qquad V(T,x)=g(x).
+\]}
+它与第六讲的 $\partial_tV+\inf_a\{\mathcal L^aV+f\}=0$ 完全等价。
+
+\section{从上接触与从下接触}
+
+\begin{definition}[黏性次解]
+上半连续函数 $u$ 是次解，如果每当 $\phi\in C^{1,2}$ 使 $u-\phi$ 在 $(t_0,x_0)$ 取得局部极大值，就有
+\[
+-\partial_t\phi(t_0,x_0)
++\mathscr H(t_0,x_0,D\phi,D^2\phi)\le0.
+\]
+\end{definition}
+
+\begin{definition}[黏性上解]
+下半连续函数 $w$ 是上解，如果每当 $\phi\in C^{1,2}$ 使 $w-\phi$ 在 $(t_0,x_0)$ 取得局部极小值，就有
+\[
+-\partial_t\phi(t_0,x_0)
++\mathscr H(t_0,x_0,D\phi,D^2\phi)\ge0.
+\]
+\end{definition}
+
+连续函数同时为次解和上解，便是黏性解。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.2,0)--(4.3,0) node[right,font=\scriptsize\sffamily] {$x$};
+  \draw[axis] (0,-.4)--(0,3.2);
+  \draw[BlueAccent,line width=2pt] plot[smooth] coordinates {(-3.7,.5)(-2.7,1.25)(-1.7,.7)(-.7,1.45)(0,1.2)(.7,1.55)(1.5,.85)(2.5,1.35)(3.7,.65)};
+  \draw[YellowAccent,very thick,domain=-2.3:2.3,samples=60] plot (\x,{1.2+.12*(\x)^2});
+  \draw[GreenAccent,very thick,domain=-2.1:2.1,samples=60] plot (\x,{1.2-.11*(\x)^2});
+  \fill[SoftWhite] (0,1.2) circle (2.8pt);
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (2.8,2.0) {上方测试函数};
+  \node[font=\scriptsize\sffamily,text=GreenAccent] at (2.7,.42) {下方测试函数};
+  \node[font=\scriptsize\sffamily,text=BlueAccent] at (-3.1,1.75) {$V$ 可有折角};
+\end{tikzpicture}
+\captionof{figure}{测试函数在接触点借出自己的导数；它无需在整个区域逼近值函数。}
+\end{center}
+
+\section{DPP 推出次解不等式}
+
+设 $\phi$ 从上方接触 $V$ 于 $(t_0,x_0)$，即局部有 $V\le\phi$ 且接触点相等。固定任意动作 $a$，在一个短时间/退出时刻前使用常控制 $a$。由 DPP 的“值不大于任意可行策略成本”，
+\[
+V(t_0,x_0)
+\le\E\!\left[\int_{t_0}^{\tau}f(s,X_s,a)\dd s+V(\tau,X_\tau)\right]
+\le\E\!\left[\int_{t_0}^{\tau}f(s,X_s,a)\dd s+\phi(\tau,X_\tau)\right].
+\]
+对 $\phi$ 使用 Itô 公式、除以预期时间并让邻域缩小，得到对每个 $a$ 都有
+\[
+\partial_t\phi+\mathcal L^a\phi+f(\cdot,a)\ge0.
+\]
+等价地，
+\[
+-\partial_t\phi
++\sup_a\{-\mathcal L^a\phi-f(\cdot,a)\}\le0,
+\]
+这正是次解不等式。
+
+\section{DPP 推出上解不等式}
+
+若 $\phi$ 从下方接触 $V$，则局部 $V\ge\phi$。取短区间上的 $\varepsilon$-最优控制 $\alpha^\varepsilon$，由 DPP
+\[
+V(t_0,x_0)+\varepsilon h
+\ge\E\!\left[\int_{t_0}^{\tau}f(s,X_s,\alpha_s^\varepsilon)\dd s
++V(\tau,X_\tau)\right]
+\ge\E\!\left[\int_{t_0}^{\tau}f\,\dd s+\phi(\tau,X_\tau)\right].
+\]
+Itô 展开并令 $\varepsilon,h\downarrow0$，得到
+\[
+-\partial_t\phi+\mathscr H(t_0,x_0,D\phi,D^2\phi)\ge0.
+\]
+次解使用\blue{任意固定控制}，上解使用\yellow{近似最优控制}；这与第九讲 DPP 两个方向的结构完全呼应。
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 17mm]
+  \node[concept] (dpp) {动态规划原理};
+  \node[conceptyellow,right=of dpp] (sub) {上方接触\\次解不等式};
+  \node[conceptgreen,below=of sub] (super) {下方接触\\上解不等式};
+  \node[conceptpurple,right=15mm of $(sub)!0.5!(super)$] (unique) {比较原理\\唯一连续解};
+  \draw[flow] (dpp)--node[above,font=\scriptsize\sffamily,text=MutedText]{任意控制} (sub);
+  \draw[warmflow] (dpp)--node[below,font=\scriptsize\sffamily,text=MutedText]{$\varepsilon$-最优控制} (super);
+  \draw[softflow] (sub)--(unique);
+  \draw[softflow] (super)--(unique);
+\end{tikzpicture}
+\captionof{figure}{概率控制与 PDE 理论的闭环。}
+\end{center}
+
+\section{比较原理：唯一性的发动机}
+
+典型比较结论是：若 $u$ 是适当增长的上半连续次解，$w$ 是下半连续上解，且
+\[
+u(T,x)\le w(T,x),
+\]
+则在整个区域 $u\le w$。证明常使用 doubling of variables：
+\[
+\sup_{t,x,y}\left\{
+u(t,x)-w(t,y)-\frac{\abs{x-y}^2}{2\varepsilon}
+\right\},
+\]
+迫使最大点满足 $x\approx y$，再用 Crandall--Ishii 型矩阵不等式比较两边测试二阶导。比较原理带来三件事：
+
+\begin{enumerate}
+  \item 黏性解唯一；
+  \item 由 DPP 得到的值函数就是该唯一解；
+  \item 近似模型和数值格式只要保持单调稳定，就有希望收敛到同一对象。
+\end{enumerate}
+
+\section{不可微但完全正确的值函数}
+
+考虑确定性系统 $\dot X=a$、$\abs a\le1$，无运行成本，终端成本 $g(x)=\abs x$。剩余时间内最多向原点移动 $T-t$，故
+\[
+V(t,x)=\max\{\abs x-(T-t),0\}.
+\]
+它满足
+\[
+\partial_tV-\abs{V_x}=0,\qquad V(T,x)=\abs x,
+\]
+却在 $\abs x=T-t$ 处不可微。经典解语言会失败；测试函数仍能在折角处给出正确的不等式，所以 $V$ 是黏性解。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.2,0)--(4.2,0) node[right,font=\scriptsize\sffamily] {$x$};
+  \draw[axis] (0,-.2)--(0,2.8) node[above,font=\scriptsize\sffamily] {$V$};
+  \draw[BlueAccent,line width=2.2pt] (-3.8,2.15)--(-1.35,0)--(1.35,0)--(3.8,2.15);
+  \fill[YellowAccent] (-1.35,0) circle (3pt);
+  \fill[YellowAccent] (1.35,0) circle (3pt);
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (0,.55) {可达原点：成本为 0};
+  \node[font=\scriptsize\sffamily,text=MutedText] at (2.7,1.25) {来不及完全回到原点};
+\end{tikzpicture}
+\captionof{figure}{控制切换制造折角；折角是问题结构，不是解的缺陷。}
+\end{center}
+
+\section{稳定性与无限维延伸}
+
+黏性解对局部一致收敛稳定：若 HJB 算子和解序列合适收敛，极限仍是极限方程的黏性解。这对离散化、噪声消失极限和有限玩家极限至关重要。
+
+在 Hilbert 空间中，状态 $X$ 可代表随机变量、场或延迟系统；HJB 形式仍是
+\[
+-\partial_tV+\mathscr H(t,X,DV,D^2V)=0.
+\]
+困难在于二阶算子的迹可能无穷、紧性变弱、测试函数类别需要调整。尽管技术升级，核心仍是 DPP、接触测试与比较。
+
+\begin{takeaway}
+\begin{enumerate}
+  \item 停止时刻 DPP 把局部退出问题纳入 Bellman 递归；
+  \item 测试函数借出导数，使连续但不可微的值函数仍满足 HJB；
+  \item 次解来自任意控制，上解来自 $\varepsilon$-最优控制；
+  \item 比较原理给出唯一性，并把控制值函数与 PDE 解完全识别。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 用简单停止时刻 $\tau=\sum_k t_k\mathbf 1_{A_k}$ 写出 DPP 的分层拼接。
+  \item 对 $V(t,x)=\max\{\abs x-(T-t),0\}$ 分区域验证 HJB，并说明折角处为何要用黏性定义。
+  \item 在次解证明中解释为什么从上接触给出 $V(\tau,X_\tau)\le\phi(\tau,X_\tau)$。
+\end{enumerate}
+\end{exercisebox}

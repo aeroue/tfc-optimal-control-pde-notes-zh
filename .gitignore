@@ -1,0 +1,21 @@
+# LaTeX build and temporary files
+build/
+qa/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# Editor and operating-system metadata
+.DS_Store
+Thumbs.db
+*.swp
+*.swo

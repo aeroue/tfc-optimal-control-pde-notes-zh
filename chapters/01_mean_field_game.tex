@@ -1,0 +1,158 @@
+\chapter{从 \texorpdfstring{$N$}{N} 人博弈到平均场博弈}
+\lectureribbon{01}{On a Mean Field Game Equation I}{Wilfrid Gangbo}
+
+\begin{learninggoals}
+\begin{itemize}
+  \item 从有限 $N$ 人 Nash 博弈中识别“只通过经验分布相互作用”的结构；
+  \item 理解 $N\to\infty$ 后为什么出现一对前向--后向偏微分方程；
+  \item 看清平均场博弈系统与主方程分别回答什么问题。
+\end{itemize}
+\end{learninggoals}
+
+\section{有限玩家：每个人都在优化，但环境由所有人共同生成}
+
+设有 $N$ 个玩家，第 $i$ 个玩家的状态为 $X_t^i\in\R^d$，控制为 $\alpha_t^i$。一个典型动力学写成
+\[
+\dd X_t^i=b\!\left(X_t^i,\alpha_t^i,m_t^N\right)\dd t
++\sqrt{2\nu}\,\dd W_t^i,
+\qquad
+m_t^N=\frac1N\sum_{j=1}^N\delta_{X_t^j}.
+\]
+这里的 $m_t^N$ 是\keyterm{经验测度}：它把“其他 $N-1$ 人在哪里”压缩成一份分布。玩家 $i$ 的目标为
+\[
+J^i(\bmalpha)=
+\E\!\left[
+\int_0^T L\!\left(X_t^i,\alpha_t^i,m_t^N\right)\dd t
++G\!\left(X_T^i,m_T^N\right)
+\right].
+\]
+
+\begin{definition}[Nash 均衡]
+控制组合 $\bmalpha^*=(\alpha^{1,*},\ldots,\alpha^{N,*})$ 是 Nash 均衡，如果任何一个玩家在其他人策略不变时都不能通过单独改策获益：
+\[
+J^i(\alpha^{i,*},\bmalpha^{-i,*})
+\le J^i(\beta^i,\bmalpha^{-i,*})
+\quad\text{对所有容许 }\beta^i.
+\]
+它表达的是\emterm{单边偏离无利可图}，并不等于所有人的总代价最小。
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[scale=.96]
+  \draw[guide,rounded corners=8pt] (-4.6,-2.1) rectangle (4.6,2.1);
+  \foreach \x/\y in {-3.5/1.1,-2.7/-.8,-1.8/.4,-.9/-1.3,.1/1.2,1.2/-.3,2.1/.8,3.1/-1.2,3.7/.25}{
+    \fill[BlueAccent,opacity=.85] (\x,\y) circle (3pt);
+  }
+  \fill[YellowAccent] (-.9,-1.3) circle (5pt);
+  \draw[warmflow] (-.9,-1.3) -- ++(1.45,.9) node[right,font=\scriptsize\sffamily,text=YellowAccent]{玩家 $i$ 的选择};
+  \node[conceptpurple] at (0,-2.75) {$N$ 个点 $\longmapsto$ 经验分布 $m_t^N$};
+  \draw[softflow] (0,-2.1)--(0,-2.3);
+\end{tikzpicture}
+\captionof{figure}{玩家只需感知群体的统计形状，而不必记住每个人的身份。黄色玩家既受分布影响，也以 $1/N$ 的权重影响分布。}
+\end{center}
+
+\section{Hamiltonian：把“选控制”压缩成一个函数}
+
+先采用控制进入速度、运行成本为 $L(x,a)$ 的简化模型。定义 Hamiltonian
+\[
+H(x,p)=\sup_{a\in A}\bigl\{-a\cdot p-L(x,a)\bigr\}.
+\]
+符号选择取决于将问题写成最小化还是最大化。本讲义采用上式时，最优速度满足
+\[
+a^*(x,p)\in\argmax_{a\in A}\{-a\cdot p-L(x,a)\},
+\qquad a^*=-D_pH(x,p)
+\]
+（后一式需 $H$ 光滑且采用对应约定）。因此，价值梯度 $p=\nabla u$ 告诉玩家“往哪个方向移动最能降低未来总代价”。
+
+\begin{examplebox}[二次动能]
+若 $L(a)=\tfrac12\abs a^2$，则
+\[
+H(p)=\sup_a\{-a\cdot p-\tfrac12\abs a^2\}
+=\frac12\abs p^2,
+\qquad a^*(p)=-p.
+\]
+价值上升最快的方向是 $\nabla u$，所以最优运动朝 $-\nabla u$。
+\end{examplebox}
+
+\section{极限 \texorpdfstring{$N\to\infty$}{N→∞}：一个代表性玩家面对确定分布流}
+
+当玩家可交换，且每个人对经验分布的影响只有 $1/N$ 时，极限中单个玩家近似把总体分布流 $m=(m_t)_{0\le t\le T}$ 当成给定环境。固定 $m$，代表性玩家求解 HJB 方程；所有玩家采用该最优反馈后，其状态分布又必须恰好等于 $m$。这就是\keyterm{平均场一致性条件}。
+
+在常见扩散约定下，平均场博弈系统为
+\focusequation{平均场博弈的前向--后向系统}{%
+\[
+\left\{
+\begin{aligned}
+-\partial_t u-\nu\Delta u+H(x,\nabla u)&=F(x,m_t),
+&&u(T,x)=G(x,m_T),\\
+\partial_t m-\nu\Delta m-\nabla\!\cdot\!\bigl(mD_pH(x,\nabla u)\bigr)&=0,
+&&m(0)=m_0.
+\end{aligned}
+\right.
+\]}
+
+第一行\yellow{从终端向过去}传播价值，第二行\green{从初始时刻向未来}传播人口。两行通过 $F,G$ 与 $D_pH$ 双向耦合。
+
+\begin{center}
+\begin{tikzpicture}[node distance=16mm and 20mm]
+  \node[conceptyellow] (u) {价值 $u(t,x)$\\向后求解};
+  \node[conceptgreen,right=of u] (m) {分布 $m_t$\\向前演化};
+  \draw[warmflow,bend left=18] (u) to node[above,font=\scriptsize\sffamily,text=MutedText]{最优反馈 $-D_pH(x,\nabla u)$} (m);
+  \draw[flow,bend left=18] (m) to node[below,font=\scriptsize\sffamily,text=MutedText]{拥挤成本 $F(x,m_t)$} (u);
+  \node[below=13mm of $(u)!0.5!(m)$,font=\sffamily\small,text=BlueAccent] {不动点：猜测的分布 = 最优行为产生的分布};
+\end{tikzpicture}
+\captionof{figure}{MFG 的核心不是单个 PDE，而是价值与分布之间的闭环不动点。}
+\end{center}
+
+\section{为什么还需要主方程}
+
+MFG 系统针对一个给定初始分布 $m_0$，求出整条均衡轨道 $(u_t,m_t)$。但如果我们想同时描述“从任意时刻、任意个体状态、任意总体分布出发”的均衡价值，就要引入
+\[
+U(t,x,m): [0,T]\times\R^d\times\PP_2(\R^d)\longrightarrow\R.
+\]
+沿均衡分布轨道应有 $u(t,x)=U(t,x,m_t)$。对这个复合函数使用分布方向的链式法则，就会得到\keyterm{主方程}。因此：
+
+\begin{itemize}
+  \item MFG 系统描述一条均衡轨道；
+  \item 主方程描述所有可能分布状态上的均衡反馈场；
+  \item 有了足够光滑的 $U$，可用 $U(t,x,m^N)$ 近似有限 $N$ 人博弈的值函数。
+\end{itemize}
+
+\begin{pitfall}[社会规划问题不等于 Nash 博弈]
+把所有玩家成本相加后统一最小化，得到的是社会规划者的最优控制；Nash 均衡只要求每个人对单边偏离最优。只有在特殊的势结构下，两者才可由同一个整体泛函联系起来，第五讲将回到这一点。
+\end{pitfall}
+
+\section{一个静态拥挤例子}
+
+设终端成本 $G(x,m)=g(x)+\kappa\rho_m(x)$，其中 $\rho_m$ 是分布密度，$\kappa>0$。若所有人涌向 $g$ 最小的地点，该处密度升高，拥挤项又会抬高成本。均衡不是“所有人去同一点”，而是外部吸引 $g$ 与内生排斥 $\kappa\rho_m$ 的平衡。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.2,0)--(4.2,0) node[right,font=\scriptsize\sffamily]{位置 $x$};
+  \draw[axis] (0,-.2)--(0,2.9) node[above,font=\scriptsize\sffamily]{成本};
+  \draw[BlueAccent,very thick,domain=-3.6:3.6,samples=80] plot (\x,{0.18*(\x)^2+.25});
+  \draw[RedAccent,very thick,domain=-3.6:3.6,samples=80] plot (\x,{2.25*exp(-0.75*(\x)^2)});
+  \draw[YellowAccent,line width=2.2pt,domain=-3.6:3.6,samples=80] plot (\x,{0.18*(\x)^2+.25+2.25*exp(-0.75*(\x)^2)});
+  \node[text=BlueAccent,font=\scriptsize\sffamily] at (3.15,2.05) {外部成本 $g$};
+  \node[text=RedAccent,font=\scriptsize\sffamily] at (-2.65,1.85) {拥挤成本};
+  \node[text=YellowAccent,font=\scriptsize\sffamily] at (2.6,.85) {总成本};
+\end{tikzpicture}
+\captionof{figure}{个体最优与群体分布相互塑造：分布不是参数，而是均衡的一部分。}
+\end{center}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item 经验测度 $m_t^N$ 把对称的 $N$ 人相互作用压缩成分布；
+  \item $N\to\infty$ 后，代表性玩家对给定 $m$ 做最优控制，再以一致性条件闭环；
+  \item MFG 是“向后价值 + 向前分布”的耦合系统；
+  \item 主方程把价值提升为 $U(t,x,m)$，统一编码所有初始分布。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 对 $L(a)=\tfrac{1}{q}\abs a^q$（$q>1$），计算对应 Hamiltonian 的幂指数，并解释最优速度方向。
+  \item 若 $F(x,m)$ 与 $m$ 无关，MFG 系统还保留哪些耦合？它是否退化为普通最优控制？
+  \item 用一句话区分：经验测度、总体极限分布、主方程中的分布变量。
+\end{enumerate}
+\end{exercisebox}

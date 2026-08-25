@@ -1,0 +1,181 @@
+\chapter{符号表与延伸阅读}
+\section{十讲速查}
+
+\begin{tcolorbox}[colback=NightPanelTwo,colframe=GridLine]
+\small
+\begin{tabularx}{\textwidth}{@{}>{\sffamily\bfseries\color{BlueAccent}}p{0.08\textwidth}>{\RaggedRight\arraybackslash}p{0.29\textwidth}Y@{}}
+\toprule
+讲次 & 主题 & 一句话核心 \\
+\midrule
+01 & 从 $N$ 人博弈到 MFG & 个体最优与总体分布构成前向--后向不动点。\\
+02 & Wasserstein 几何 & 分布的距离、速度和梯度都可由最优搬运定义。\\
+03 & Lions 导数与主方程 & 在 Hilbert 空间求导，再降回 law-invariant 的分布变量。\\
+04 & 特征线与流 & 粒子轨迹的推前等价于连续性方程，流满足时间拼接。\\
+05 & 势平均场博弈 & 个体边际成本来自同一分布势能的变分。\\
+06 & 随机控制与 HJB & DPP 的短时间极限加 Itô 公式产生 HJB。\\
+07 & 验证与反馈 & HJB 解给普遍下界，逐点极小反馈使下界取等。\\
+08 & 可测结构 & 条件概率、标准 Borel 与控制拼接让直觉 DPP 合法。\\
+09 & DPP 证明 & 条件化给一个方向，可测的 $\varepsilon$-最优拼接给另一个方向。\\
+10 & 黏性解 & 测试函数替代缺失导数，比较原理给出唯一性。\\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\section{常用符号}
+
+\begin{tcolorbox}[colback=NightPanelTwo,colframe=GridLine]
+\begin{tabularx}{\textwidth}{@{}>{\color{YellowAccent}}p{0.23\textwidth}Y@{}}
+\toprule
+\textcolor{BlueAccent}{符号} & \textcolor{BlueAccent}{含义} \\
+\midrule
+$\PP_2(\R^d)$ & 具有有限二阶矩的 Borel 概率测度空间 \\
+$\Gamma(\mu,\nu)$ & 边缘分布为 $\mu,\nu$ 的所有耦合 \\
+$W_2(\mu,\nu)$ & 二阶 Wasserstein 距离 \\
+$T_\#\mu$ & 映射 $T$ 对测度 $\mu$ 的推前 \\
+$\Law(X)$ & 随机变量 $X$ 的分布 \\
+$D_m\mathcal F(m,x)$ & 分布泛函的 Lions/Wasserstein 向量导数 \\
+$\delta\mathcal F/\delta m$ & 标量线性泛函导数，只确定到常数 \\
+$m_t^N$ & $N$ 个粒子的经验测度 \\
+$u(t,x)$ & 给定均衡分布流上的个体价值 \\
+$U(t,x,m)$ & 同时依赖个体状态和总体分布的主方程解 \\
+$V(t,x)$ & 随机最优控制值函数 \\
+$\mathcal L^a$ & 固定动作 $a$ 的扩散生成元 \\
+$\mathcal S_{t,s}$ & Bellman--Nisio 非线性半群 \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\section{符号约定对照}
+
+本讲义的随机控制采用最小化成本：
+\[
+V(t,x)=\inf_\alpha\E\!\left[\int_t^Tf\,\dd s+g(X_T)\right].
+\]
+因此 HJB 有两种完全等价的写法：
+\[
+\partial_tV+\inf_a\{\mathcal L^aV+f^a\}=0
+\quad\Longleftrightarrow\quad
+-\partial_tV+\sup_a\{-\mathcal L^aV-f^a\}=0.
+\]
+经典计算常用左式；黏性比较理论常用右式。若资料采用最大化收益、反向时间或 $H(x,p)=\sup_a\{a\cdot p-L\}$，若干符号会翻转，但 Bellman 结构不变。
+
+\begin{pitfall}[核对公式的四步]
+\begin{enumerate}
+  \item 问题是最小化成本还是最大化收益？
+  \item 终端条件在 $T$，还是初始条件在 $0$？
+  \item SDE 扩散写成 $\sigma\dd W$ 还是 $\sqrt{2\nu}\dd W$？
+  \item Hamiltonian 对速度/控制的 Legendre 变换用了哪个正负号？
+\end{enumerate}
+\end{pitfall}
+
+\section{核心公式卡}
+
+\begin{multicols}{2}
+\begin{definition}[最优搬运]
+\[
+W_2^2(\mu,\nu)=
+\inf_{\gamma\in\Gamma(\mu,\nu)}
+\int\abs{x-y}^2\dd\gamma.
+\]
+\end{definition}
+
+\begin{definition}[连续性方程]
+\[
+\partial_tm+\nabla\cdot(mv)=0.
+\]
+\end{definition}
+
+\begin{definition}[分布链式法则]
+\[
+\frac{\dd}{\dd t}\mathcal F(m_t)
+=\int D_m\mathcal F(m_t,x)\cdot v_t(x)m_t(\dd x).
+\]
+\end{definition}
+
+\begin{definition}[Hilbert 提升]
+\[
+\begin{aligned}
+\widetilde{\mathcal F}(X)&=\mathcal F(\Law(X)),\\
+D\widetilde{\mathcal F}(X)&=D_m\mathcal F(\Law X,X).
+\end{aligned}
+\]
+\end{definition}
+
+\begin{definition}[受控扩散]
+\[
+\dd X_s=b(s,X_s,\alpha_s)\dd s
++\sigma(s,X_s,\alpha_s)\dd W_s.
+\]
+\end{definition}
+
+\begin{definition}[动态规划]
+\[
+V(t,x)=\inf_\alpha\E\!\left[
+\int_t^\tau f\,\dd s+V(\tau,X_\tau)\right].
+\]
+\end{definition}
+\end{multicols}
+
+\section{一张总关系图}
+
+\begin{center}
+\begin{tikzpicture}[node distance=10mm and 13mm,scale=.94,transform shape]
+  \node[concept] (nash) {$N$ 人 Nash 系统};
+  \node[conceptpurple,right=of nash] (emp) {经验测度\\$m^N$};
+  \node[conceptgreen,right=of emp] (mfg) {MFG 系统\\$u,m$};
+  \node[conceptyellow,right=of mfg] (master) {主方程\\$U(t,x,m)$};
+  \draw[flow] (nash)--node[above,font=\scriptsize\sffamily,text=MutedText]{$N\to\infty$} (emp);
+  \draw[flow] (emp)--(mfg);
+  \draw[warmflow] (mfg)--node[above,font=\scriptsize\sffamily,text=MutedText]{所有初值统一化} (master);
+
+  \node[concept,below=15mm of nash] (sde) {受控 SDE};
+  \node[conceptpurple,right=of sde] (value) {值函数 $V$};
+  \node[conceptgreen,right=of value] (dpp) {动态规划 DPP};
+  \node[conceptyellow,right=of dpp] (hjb) {HJB 黏性解};
+  \draw[flow] (sde)--(value);
+  \draw[flow] (value)--(dpp);
+  \draw[warmflow] (dpp)--(hjb);
+
+  \draw[softflow,dashed] (emp)--node[right,font=\scriptsize\sffamily,text=MutedText]{Wasserstein 几何} (value);
+  \draw[softflow,dashed] (master)--node[right,font=\scriptsize\sffamily,text=MutedText]{无限维 Bellman} (hjb);
+\end{tikzpicture}
+\captionof{figure}{上半部是群体博弈极限，下半部是单体随机控制；两者由分布几何和 Bellman 原理连接。}
+\end{center}
+
+\section{课程来源与重构原则}
+
+本讲义对应 Tohoku Forum for Creativity 2017 课程《Optimal Control and Partial Differential Equations》十场讲座。第一至第五讲由 Wilfrid Gangbo 主讲，主题为平均场博弈方程；第六至第十讲由 Andrzej Święch 主讲，主题为 HJB 方程、动态规划原理与随机最优控制。
+
+正文根据完整中文精校字幕重构：保留课程论证主线，统一中文术语，补足跨讲依赖，并用向量示意图解释空间关系。它是学习型讲义，不代替原讲座中的全部技术假设与证明细节。
+
+\section{建议的延伸阅读路径}
+
+\begin{enumerate}
+  \item \emterm{最优传输与 Wasserstein 几何}：先系统学习最优耦合、测地线、连续性方程与梯度流；
+  \item \emterm{平均场博弈}：再学习 MFG 系统的存在唯一性、Lasry--Lions 单调性与主方程；
+  \item \emterm{随机控制}：掌握 SDE、Itô 公式、DPP、验证定理和强/弱表述；
+  \item \emterm{黏性解}：重点学习半连续包、测试函数、比较原理与稳定性；
+  \item \emterm{无限维控制}：最后把状态推广到 Hilbert 空间与概率测度空间。
+\end{enumerate}
+
+\begin{takeaway}[全课程最后一页]
+\[
+\boxed{
+\text{局部最优选择}
+\ \xrightarrow{\ \text{动态规划}\ }\ 
+\text{价值方程}
+\ \xrightarrow{\ \text{反馈}\ }\ 
+\text{状态/分布演化}
+}
+\]
+\[
+\boxed{
+\text{有限玩家}
+\ \xrightarrow{\ N\to\infty\ }\ 
+\text{平均场博弈}
+\ \xrightarrow{\ \text{分布微分}\ }\ 
+\text{主方程}
+}
+\]
+两条链的共同语言是：\blue{状态空间的几何}、\yellow{未来价值的递归}、\green{最优反馈的闭环}。
+\end{takeaway}

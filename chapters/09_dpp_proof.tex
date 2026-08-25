@@ -1,0 +1,199 @@
+\chapter{动态规划原理的严格证明}
+\lectureribbon{09}{HJB Equations, DPP and Stochastic Optimal Control IV}{Andrzej Święch}
+\begin{learninggoals}
+\begin{itemize}
+  \item 把 DPP 拆成两个方向相反的不等式，并辨认各自的难点；
+  \item 使用条件概率、Brown 运动增量与 SDE 流性质处理后续成本；
+  \item 用状态分区和 $\varepsilon$-最优控制完成可测拼接；
+  \item 理解哪些正则性假设负责控制误差、哪些假设负责可测性。
+\end{itemize}
+\end{learninggoals}
+
+\section{要证明的等式}
+
+对确定中间时刻 $s\in[t,T]$，记
+\[
+\mathcal G_{t,s}^{\alpha}[\varphi](x)
+=\E\!\left[
+\int_t^s f(r,X_r^{t,x,\alpha},\alpha_r)\dd r
++\varphi(X_s^{t,x,\alpha})
+\right].
+\]
+动态规划原理可紧凑地写为
+\focusequation{DPP 的算子形式}{%
+\[
+V(t,x)=\inf_{\alpha\in\mathcal A_t}
+\mathcal G_{t,s}^{\alpha}[V(s,\cdot)](x).
+\]}
+等号左边允许在整个区间上选择一条控制；右边只显式选择前段控制，把后段最优值压缩为 $V(s,X_s)$。证明要说明这两种优化方式能力完全相同。
+
+\begin{center}
+\begin{tikzpicture}[node distance=11mm and 16mm]
+  \node[concept] (whole) {一次优化整段\\$V(t,x)$};
+  \node[conceptyellow,right=of whole] (split) {前段控制\\$[t,s]$};
+  \node[conceptgreen,right=of split] (tail) {随机状态后的最优余程\\$V(s,X_s)$};
+  \draw[flow] (whole)--node[above,font=\scriptsize\sffamily,text=MutedText]{分解} (split);
+  \draw[warmflow] (split)--node[above,font=\scriptsize\sffamily,text=MutedText]{拼接} (tail);
+  \draw[softflow,bend right=30] (tail) to node[below,font=\scriptsize\sffamily,text=BlueAccent]{恢复整段策略} (whole);
+\end{tikzpicture}
+\captionof{figure}{DPP 证明的两次旅行：先把整段策略切开，再把依状态选择的后段策略拼回去。}
+\end{center}
+
+\section{状态流性质：在中间时刻重新启动}
+
+在 Lipschitz 条件下，受控 SDE 有路径唯一解。若控制在 $s$ 后平移为 $\alpha^{s,\omega}$，则几乎处处
+\[
+X_r^{t,x,\alpha}(\omega)
+=X_r^{s,X_s^{t,x,\alpha}(\omega),\alpha^{s,\omega}}
+\bigl(\theta_s\omega\bigr),
+\qquad r\ge s.
+\]
+这条式子不是说两边使用完全相同的原始路径，而是说：给定过去后，后续状态由中间状态、平移后的控制和新的 Brown 增量唯一决定。这是 Markov 重启的路径版。
+
+\section{第一方向：整段成本不小于“前段 + 最优余程”}
+
+任取整个区间上的容许控制 $\alpha$。把成本在 $s$ 处分开：
+\[
+J(t,x;\alpha)
+=\E\!\left[
+\int_t^s f(r,X_r,\alpha_r)\dd r
++\E\!\left[
+\left.
+\int_s^T f(r,X_r,\alpha_r)\dd r+g(X_T)
+\right|\mathcal F_s
+\right]\right].
+\]
+在给定 $\mathcal F_s$ 后，$\alpha$ 的尾部只是从随机状态 $X_s$ 出发的一种容许后续控制，因此条件后续成本至少为最优值：
+\[
+\E\!\left[
+\left.
+\int_s^T f\,\dd r+g(X_T)
+\right|\mathcal F_s
+\right]\ge V(s,X_s).
+\]
+于是
+\[
+J(t,x;\alpha)
+\ge\mathcal G_{t,s}^{\alpha}[V(s,\cdot)](x).
+\]
+再对整个区间控制取 infimum，得到
+\focusequation{DPP 的“$\ge$”方向}{%
+\[
+V(t,x)\ge
+\inf_{\alpha}\mathcal G_{t,s}^{\alpha}[V(s,\cdot)](x).
+\]}
+
+\begin{intuition}[这一方向为什么相对容易]
+任何既定尾策略都不会优于尾部问题的最优值。只要条件化后尾控制仍然合法，结论便直接来自“最优值 $\le$ 任意可行值”。
+\end{intuition}
+
+\section{第二方向：把近似最优余程可测地接上}
+
+反向不等式不能简单地写“到 $X_s$ 后取最优控制”，因为 $X_s$ 取不可数多个值，而且最优控制未必存在。标准办法是“离散化状态 + 选择近似最优控制 + 拼接”。
+
+\subsection{第一步：为代表点选控制}
+
+把状态空间分成直径不超过 $\delta$ 的 Borel 集合 $B_k$，在每个非空单元选代表点 $y_k$。按值函数定义，存在控制 $\beta^k$ 使
+\[
+J(s,y_k;\beta^k)\le V(s,y_k)+\varepsilon.
+\]
+
+\subsection{第二步：按随机状态选择}
+
+定义后段控制
+\[
+\beta_r(\omega)
+=\sum_k\mathbf 1_{\{X_s(\omega)\in B_k\}}\,
+\beta_r^k(\theta_s\omega),
+\qquad r\ge s.
+\]
+事件 $\{X_s\in B_k\}$ 属于 $\mathcal F_s$，而 $\beta^k$ 只使用 $s$ 后增量，所以 $\beta$ 仍非预见且可测。
+
+\subsection{第三步：用稳定性控制网格误差}
+
+若值函数和成本对初值 Lipschitz，则对 $X_s\in B_k$，
+\[
+J(s,X_s;\beta^k)
+\le J(s,y_k;\beta^k)+C\abs{X_s-y_k}
+\le V(s,X_s)+\varepsilon+C'\delta.
+\]
+把任意前段控制 $\alpha$ 与这条后段控制拼接，得到
+\[
+V(t,x)
+\le\mathcal G_{t,s}^{\alpha}[V(s,\cdot)](x)
++\varepsilon+C'\delta.
+\]
+先对前段 $\alpha$ 取 infimum，再令 $\varepsilon,\delta\downarrow0$：
+\focusequation{DPP 的“$\le$”方向}{%
+\[
+V(t,x)\le
+\inf_{\alpha}\mathcal G_{t,s}^{\alpha}[V(s,\cdot)](x).
+\]}
+
+\begin{center}
+\begin{tikzpicture}[scale=.92]
+  \draw[guide] (-4.3,-1.8) grid[xstep=1.1,ystep=.9] (4.5,1.8);
+  \fill[YellowAccent] (-1.0,.55) circle (4pt);
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (-.35,.92) {$X_s$};
+  \foreach \x/\y/\lab in {-3.75/1.35/1,-2.65/.45/2,-1.55/1.35/3,-.45/.45/4,.65/1.35/5,1.75/.45/6,2.85/1.35/7,3.95/.45/8}{
+    \fill[BlueAccent] (\x,\y) circle (2.5pt);
+  }
+  \draw[warmflow] (-1,.55)--(-1.55,1.35);
+  \node[conceptpurple] at (0,-2.55) {找到 $X_s$ 所在网格，调用该格代表点的 $\varepsilon$-最优尾控制};
+\end{tikzpicture}
+\captionof{figure}{状态分区把不可数的控制选择转成可数个可测分支；连续性把空间离散误差压到零。}
+\end{center}
+
+\section{两方向使用的工具并不相同}
+
+\begin{tcolorbox}[colback=NightPanelTwo,colframe=GridLine]
+\begin{tabularx}{\textwidth}{@{}>{\sffamily\bfseries\color{BlueAccent}}p{0.2\textwidth}YY@{}}
+\toprule
+ & \textcolor{GreenAccent}{$V\ge$ 方向} & \textcolor{YellowAccent}{$V\le$ 方向} \\
+\midrule
+核心动作 & 条件化既定控制 & 构造一条新拼接控制 \\
+最优性使用 & 尾成本 $\ge$ 尾部最优值 & 每格选 $\varepsilon$-最优尾控制 \\
+主要工具 & 正则条件概率、状态流性质 & Borel 分区、可测选择、稳定性 \\
+主要风险 & 条件后的尾控制不在容许类 & 点态选择不可测或拼接失效 \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\section{从 DPP 再到 Nisio 半群}
+
+定义非线性算子
+\[
+(\mathcal S_{t,s}\varphi)(x)
+=\inf_{\alpha}\mathcal G_{t,s}^{\alpha}[\varphi](x).
+\]
+刚证明的 DPP 等价于
+\[
+V(t,\cdot)=\mathcal S_{t,s}V(s,\cdot),
+\]
+而对任意终端函数 $\varphi$，同样的切分与拼接论证给出
+\[
+\mathcal S_{t,s}\mathcal S_{s,r}\varphi
+=\mathcal S_{t,r}\varphi.
+\]
+因此半群性质不是形式记号，而是完整 DPP 证明在算子层面的压缩。
+
+\begin{pitfall}[最优控制可能不存在，但 DPP 仍可成立]
+值函数由 infimum 定义，未必有控制真正取到它。证明中始终使用 $\varepsilon$-最优控制，最后令 $\varepsilon\downarrow0$；这避免了不必要的紧性或选择假设。
+\end{pitfall}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item “$\ge$”方向：条件化任意整段控制，尾成本不小于尾部最优值；
+  \item “$\le$”方向：按中间状态可测地拼接近似最优尾控制；
+  \item 状态连续性负责网格误差，可测结构负责拼接合法性；
+  \item 两个方向合并后，得到 Bellman/Nisio 半群。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 不看正文，独立写出 DPP 两个不等式各自从哪一个控制出发。
+  \item 若 $V(s,\cdot)$ 只有一致连续性而非 Lipschitz，如何修改网格误差估计？
+  \item 解释为何 $\beta^{X_s}$ 必须使用 $s$ 后 Brown 增量，而不能重新使用过去噪声。
+\end{enumerate}
+\end{exercisebox}

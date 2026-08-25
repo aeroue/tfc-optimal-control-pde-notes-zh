@@ -1,0 +1,180 @@
+\chapter{验证定理与最优反馈控制}
+\lectureribbon{07}{HJB Equations, DPP and Stochastic Optimal Control II}{Andrzej Święch}
+\begin{learninggoals}
+\begin{itemize}
+  \item 用 Itô 公式证明任何 HJB 光滑解都是成本的下界；
+  \item 理解何时 Hamiltonian 的极小点产生真正的最优反馈；
+  \item 区分强控制与弱控制表述，以及退化/一致抛物两种 PDE 情形；
+  \item 看清验证定理的适用边界。
+\end{itemize}
+\end{learninggoals}
+
+\section{HJB 候选解怎样“验证”最优性}
+
+令
+\[
+\mathcal H(t,x,p,M)
+=\inf_{a\in A}\left\{
+b(t,x,a)\cdot p
++\frac12\Tr[\sigma\sigma^\top(t,x,a)M]
++f(t,x,a)\right\}.
+\]
+假设 $v\in C^{1,2}$ 满足
+\[
+\partial_tv+\mathcal H(t,x,Dv,D^2v)=0,
+\qquad v(T,x)=g(x).
+\]
+对任意容许控制 $\alpha$，由于 infimum 不大于把 $a$ 换成 $\alpha_s$ 后的值，
+\[
+\partial_tv+\mathcal L^{\alpha_s}v+f(s,x,\alpha_s)\ge0.
+\]
+沿受控状态使用 Itô 公式并取期望，鞅项消失：
+\[
+\E[g(X_T)]-v(t,x)
+=\E\int_t^T(\partial_sv+\mathcal L^{\alpha_s}v)(s,X_s)\dd s.
+\]
+于是
+\[
+J(t,x;\alpha)-v(t,x)
+=\E\int_t^T
+\bigl(\partial_sv+\mathcal L^{\alpha_s}v+f(s,X_s,\alpha_s)\bigr)\dd s
+\ge0.
+\]
+
+\begin{theorem}[经典验证定理]
+若上述光滑性、增长条件与可积性足以合法使用 Itô 公式，则
+\[
+v(t,x)\le V(t,x).
+\]
+若存在容许控制 $\alpha^*$ 几乎处处实现 HJB 中的极小值，则等号成立：
+\[
+v(t,x)=V(t,x)=J(t,x;\alpha^*).
+\]
+\end{theorem}
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 17mm]
+  \node[concept] (hjb) {HJB 光滑解\\$v$};
+  \node[conceptyellow,right=of hjb] (ineq) {对任意控制\\$v\le J(\alpha)$};
+  \node[conceptgreen,right=of ineq] (attain) {若逐点取到极小\\$J(\alpha^*)=v$};
+  \draw[flow] (hjb)--node[above,font=\scriptsize\sffamily,text=MutedText]{Itô} (ineq);
+  \draw[warmflow] (ineq)--node[above,font=\scriptsize\sffamily,text=MutedText]{等号条件} (attain);
+\end{tikzpicture}
+\captionof{figure}{验证证明有两步：先得到普遍下界，再找一条使所有不等式变等式的控制。}
+\end{center}
+
+\section{从逐点极小化到反馈控制}
+
+若存在可测选择器
+\[
+\hat a(t,x)\in\argmin_{a\in A}
+\left\{\mathcal L^av(t,x)+f(t,x,a)\right\},
+\]
+自然候选是 Markov 反馈
+\[
+\alpha_s^*=\hat a(s,X_s^*),
+\]
+其中闭环状态满足
+\[
+\dd X_s^*=b(s,X_s^*,\hat a(s,X_s^*))\dd s
++\sigma(s,X_s^*,\hat a(s,X_s^*))\dd W_s.
+\]
+但“写出 argmin”还不够：必须确保选择器可测、闭环 SDE 有解、控制确实容许且成本可积。
+
+\begin{center}
+\begin{tikzpicture}[node distance=13mm and 18mm]
+  \node[concept] (x) {观测状态\\$X_s$};
+  \node[conceptyellow,right=of x] (policy) {反馈律\\$\hat a(s,X_s)$};
+  \node[conceptgreen,right=of policy] (dyn) {闭环动力学\\$\dd X_s$};
+  \draw[flow] (x)--(policy);
+  \draw[warmflow] (policy)--(dyn);
+  \draw[softflow,bend left=32] (dyn) to node[above,font=\scriptsize\sffamily,text=MutedText]{新状态} (x);
+\end{tikzpicture}
+\captionof{figure}{反馈不是一条预先画好的轨迹，而是状态—动作—新状态的闭环。}
+\end{center}
+
+\section{一个随机线性二次例子}
+
+考虑
+\[
+\dd X_s=(aX_s+b\alpha_s)\dd s+\eta\dd W_s,
+\qquad
+J=\E\!\left[\int_t^T\frac12(qX_s^2+r\alpha_s^2)\dd s+\frac h2X_T^2\right],
+\]
+其中 $r>0$。设
+\[
+V(t,x)=\frac12P(t)x^2+c(t).
+\]
+HJB 中关于控制的部分是
+\[
+b\alpha Px+\frac r2\alpha^2,
+\]
+故
+\[
+\alpha^*(t,x)=-\frac{bP(t)}r\,x.
+\]
+比较 $x^2$ 与常数项得到 Riccati 系统
+\[
+\begin{aligned}
+P'(t)+2aP(t)-\frac{b^2}{r}P(t)^2+q&=0,
+&&P(T)=h,\\
+c'(t)+\frac{\eta^2}{2}P(t)&=0,
+&&c(T)=0.
+\end{aligned}
+\]
+噪声不改变线性反馈斜率的形式，却通过 $c(t)$ 提高期望成本。
+
+\section{一致抛物与退化情形}
+
+若存在 $\lambda>0$ 使
+\[
+\sigma\sigma^\top(t,x,a)\ge\lambda I
+\quad\text{对所有 }(t,x,a),
+\]
+称方程一致抛物。噪声在所有方向平滑，经典正则性更有希望。若 $\sigma\sigma^\top$ 只有低秩，甚至 $\sigma=0$，HJB 是退化抛物或一阶方程，价值函数更容易出现折角。
+
+\begin{tcolorbox}[colback=NightPanelTwo,colframe=GridLine]
+\begin{tabularx}{\textwidth}{@{}>{\sffamily\bfseries\color{BlueAccent}}p{0.22\textwidth}YY@{}}
+\toprule
+ & \textcolor{GreenAccent}{一致抛物} & \textcolor{YellowAccent}{退化/一阶} \\
+\midrule
+噪声方向 & 覆盖所有状态方向 & 只覆盖部分方向或没有噪声 \\
+平滑作用 & 强 & 弱或缺失 \\
+经典解 & 条件合适时可期待 & 常常不能期待 \\
+稳健语言 & 经典解与黏性解 & 黏性解通常不可缺少 \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\section{强表述与弱表述}
+
+\begin{definition}[强控制问题]
+概率空间、Brown 运动和滤过预先固定；控制在这套随机基底上选择，状态是给定 Brown 运动的强解。
+\end{definition}
+
+\begin{definition}[弱控制问题]
+优化时允许概率空间、Brown 运动乃至状态联合分布一并变化，只要求它们满足相应的鞅问题或 SDE 分布约束。
+\end{definition}
+
+强表述便于构造路径上的控制；弱表述在扩散系数受控、强解不唯一或需要紧性方法时更灵活。两者是否有相同值，需要额外条件，不能想当然。
+
+\begin{pitfall}[验证定理不负责制造光滑性]
+验证定理的逻辑是“若有足够光滑的候选解，则可证明它就是值函数”。它不证明 HJB 必有经典解。现实中值函数常只连续，此时要用黏性解与比较原理替代逐点二阶导数。
+\end{pitfall}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item HJB 光滑解经 Itô 公式给出所有控制成本的下界；
+  \item 逐点实现 Hamiltonian 极小值且闭环可解时，反馈控制最优；
+  \item 可测选择、闭环适定性和可积性是 argmin 背后的三道门；
+  \item 退化扩散会削弱平滑性，推动理论转向黏性解。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 在验证推导中逐行指出哪一步使用了 HJB，哪一步使用了终端条件。
+  \item 完成标量 Riccati 例子的系数比较，并说明 $r$ 变大时反馈强度如何变化。
+  \item 举出一个逐点 argmin 存在但闭环 SDE 可能不适定的原因。
+\end{enumerate}
+\end{exercisebox}

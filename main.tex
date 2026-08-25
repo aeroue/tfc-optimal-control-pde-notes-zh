@@ -1,0 +1,118 @@
+\documentclass[11pt,oneside,openany,fontset=none]{ctexbook}
+\usepackage{style/threeblue}
+
+\title{最优控制与偏微分方程}
+\author{TFC 课程中文精校讲义}
+\date{2026}
+\hypersetup{
+  pdftitle={最优控制与偏微分方程：十讲中文精校课程讲义},
+  pdfauthor={Wilfrid Gangbo; Andrzej Święch},
+  pdfsubject={平均场博弈、Wasserstein 几何、随机最优控制、动态规划与 HJB 方程},
+  pdfkeywords={最优控制, 偏微分方程, 平均场博弈, Wasserstein, HJB, 动态规划, 黏性解}
+}
+
+\begin{document}
+
+% ==================== Cover ====================
+\begin{titlepage}
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[DeepSpace] (current page.south west) rectangle (current page.north east);
+  \foreach \x in {0,...,12}{
+    \draw[GridLine,opacity=.28] ($(current page.south west)+(\x*1.75cm,0)$) -- ($(current page.north west)+(\x*1.75cm,0)$);
+  }
+  \foreach \y in {0,...,17}{
+    \draw[GridLine,opacity=.28] ($(current page.south west)+(0,\y*1.75cm)$) -- ($(current page.south east)+(0,\y*1.75cm)$);
+  }
+  % A family of controlled trajectories
+  \draw[BlueAccent,line width=2.2pt] ($(current page.south west)+(1.8cm,6.0cm)$)
+    .. controls +(3.0cm,2.1cm) and +(-4.0cm,-1.6cm) .. ($(current page.south east)+(-1.8cm,9.2cm)$);
+  \draw[YellowAccent,line width=1.7pt] ($(current page.south west)+(1.8cm,6.0cm)$)
+    .. controls +(3.4cm,0.2cm) and +(-3.4cm,1.7cm) .. ($(current page.south east)+(-1.8cm,9.2cm)$);
+  \draw[GreenAccent,line width=1.7pt] ($(current page.south west)+(1.8cm,6.0cm)$)
+    .. controls +(2.7cm,4.0cm) and +(-3.2cm,-4.0cm) .. ($(current page.south east)+(-1.8cm,9.2cm)$);
+  \fill[BlueAccent] ($(current page.south west)+(1.8cm,6.0cm)$) circle (3.5pt);
+  \fill[YellowAccent] ($(current page.south east)+(-1.8cm,9.2cm)$) circle (3.5pt);
+  % Measure particles
+  \foreach \x/\y in {2.0/20.7,2.7/21.4,3.4/20.5,4.2/21.1,5.0/20.3,5.8/21.0,6.6/20.5}
+    \fill[PurpleAccent,opacity=.75] ($(current page.south west)+(\x cm,\y cm)$) circle (2.1pt);
+\end{tikzpicture}
+
+\vspace*{22mm}
+\begin{flushleft}
+  {\sffamily\small\bfseries\textcolor{BlueAccent}{TOHOKU FORUM FOR CREATIVITY \quad 2017}}\\[13mm]
+  {\sffamily\fontsize{30}{36}\selectfont\bfseries\textcolor{SoftWhite}{最优控制}}\\[1mm]
+  {\sffamily\fontsize{30}{36}\selectfont\bfseries\textcolor{SoftWhite}{与偏微分方程}}\\[7mm]
+  {\sffamily\Large\textcolor{MutedText}{Optimal Control and Partial Differential Equations}}\\[11mm]
+  \begin{tikzpicture}
+    \fill[BlueAccent] (0,0) rectangle (3.0,.11);
+    \fill[YellowAccent] (3.15,0) rectangle (5.2,.11);
+    \fill[GreenAccent] (5.35,0) rectangle (7.0,.11);
+  \end{tikzpicture}\\[11mm]
+  {\sffamily\large\textcolor{SoftWhite}{平均场博弈 \textperiodcentered{} Wasserstein 几何 \textperiodcentered{} 动态规划 \textperiodcentered{} HJB 方程}}\\[4mm]
+  {\sffamily\normalsize\textcolor{MutedText}{十讲中文精校课程讲义 · 公式推导与几何图解}}
+\end{flushleft}
+
+\vfill
+\begin{flushleft}
+{\sffamily\small\textcolor{MutedText}{主讲：Wilfrid Gangbo · Andrzej Święch}}\\[2mm]
+{\sffamily\small\textcolor{BlueAccent}{深色屏幕阅读版 \quad 3Blue1Brown-inspired visual edition}}
+\end{flushleft}
+\end{titlepage}
+
+% ==================== Front matter ====================
+\frontmatter
+\chapter*{使用说明}
+\addcontentsline{toc}{chapter}{使用说明}
+
+这份讲义按原课程十讲的逻辑重构，而不是逐句字幕汇编。前五讲以\keyterm{平均场博弈、Wasserstein 空间与主方程}为主线，后五讲以\keyterm{随机最优控制、动态规划原理与 HJB 方程}为主线。图形、颜色和空间关系用来表达数学结构：\blue{蓝色}表示状态或主对象，\yellow{黄色}表示价值与目标，\green{绿色}表示演化或可行方向，\red{红色}表示误区或约束。
+
+\begin{intuition}[怎样使用这份讲义]
+先看每讲开头的“本讲目标”和中间的大公式，再读几何图解；最后用“一页记忆”复述主线。若能不看正文解释每幅图中的箭头，便已掌握该讲的结构。
+\end{intuition}
+
+\begin{pitfall}[约定说明]
+HJB、Fokker--Planck 与主方程在不同文献中常采用不同的时间方向、Hamiltonian 定义和扩散系数归一化。本讲义会明确当前约定；与其他资料对照时，应先检查符号，而不是只比公式外观。
+\end{pitfall}
+
+\tableofcontents
+
+\mainmatter
+\input{chapters/00_overview}
+\input{chapters/01_mean_field_game}
+\input{chapters/02_wasserstein_geometry}
+\input{chapters/03_lions_derivative_master}
+\input{chapters/04_characteristics_flow}
+\input{chapters/05_potential_mfg}
+\input{chapters/06_stochastic_control}
+\input{chapters/07_verification_feedback}
+\input{chapters/08_measurable_structure}
+\input{chapters/09_dpp_proof}
+\input{chapters/10_viscosity_solution}
+
+\appendix
+\input{chapters/appendix}
+
+\backmatter
+\chapter*{结语：同一条 Bellman 主线}
+\addcontentsline{toc}{chapter}{结语：同一条 Bellman 主线}
+
+从单个受控粒子到无穷多个相互作用的理性主体，课程始终在回答同一问题：\emterm{今天的最佳选择，如何由明天的最优价值决定？} 有限维中，这个递归关系是动态规划与 HJB 方程；分布空间中，它演化为平均场博弈系统与主方程。对象变了，Bellman 思想没有变。
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm]
+\node[concept] (local) {局部决策\\控制 $a$};
+\node[conceptyellow,right=of local] (value) {全局价值\\$V$ 或 $U$};
+\node[conceptgreen,right=of value] (pde) {偏微分方程\\HJB / 主方程};
+\draw[flow] (local)--(value);
+\draw[warmflow] (value)--(pde);
+\draw[softflow,bend left=35] (pde) to node[above,font=\scriptsize\sffamily,text=MutedText]{反馈最优策略} (local);
+\end{tikzpicture}
+\end{center}
+
+\vfill
+\begin{center}
+\sffamily\small\textcolor{MutedText}{由中文精校字幕重构 · 2026 年 8 月}
+\end{center}
+
+\end{document}

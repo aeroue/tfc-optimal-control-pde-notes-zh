@@ -1,0 +1,153 @@
+\chapter{动态规划背后的可测结构}
+\lectureribbon{08}{HJB Equations, DPP and Stochastic Optimal Control III}{Andrzej Święch}
+\begin{learninggoals}
+\begin{itemize}
+  \item 区分适应、逐步可测与可预测控制，理解“不能看未来”的精确定义；
+  \item 在典范 Wiener 空间上表示过去路径、未来增量与平移控制；
+  \item 理解标准 Borel 空间为何让正则条件概率和可测选择可用；
+  \item 为 DPP 证明准备控制拼接与值函数确定性。
+\end{itemize}
+\end{learninggoals}
+
+\section{为什么最直观的 DPP 还需要一整讲技术}
+
+直观上，到达 $(s,X_s)$ 后“重新选择最优控制”即可。但 $X_s$ 是随机变量，不同样本点需要选择不同的后续控制。若选择方式不可测，拼出的对象就不是合法随机过程，期望也未必有意义。因此必须回答：
+
+\begin{itemize}
+  \item 控制究竟能依赖路径的哪一部分？
+  \item 给定随机中间状态，如何可测地选近似最优后续控制？
+  \item 条件在过去路径上后，未来噪声是否仍是 Brown 运动？
+  \item 两段控制拼接后是否仍属于同一容许类？
+\end{itemize}
+
+\section{滤过与非预见性}
+
+滤过 $(\mathcal F_s)$ 表示随时间积累的信息。控制 $\alpha_s$ 至少应当适应：$\alpha_s$ 只能使用 $\mathcal F_s$ 中的信息。为了使随机积分与参数化操作稳定，通常要求更强的逐步可测或可预测性质。
+
+\begin{definition}[逐步可测]
+过程 $\alpha$ 若对每个 $s$，映射
+\[
+(r,\omega)\longmapsto\alpha_r(\omega),
+\qquad (r,\omega)\in[0,s]\times\Omega
+\]
+相对于 $\mathcal B([0,s])\otimes\mathcal F_s$ 可测，则称逐步可测。
+\end{definition}
+
+\begin{intuition}[信息锥]
+在时空图上，时刻 $s$ 的控制只能看到 $s$ 左侧的路径。任何依赖 $W_T-W_s$ 的规则都跨越了信息边界，是预见性控制。
+\end{intuition}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.4,0)--(4.5,0) node[right,font=\scriptsize\sffamily] {时间};
+  \draw[very thick,BlueAccent] (-4,0) .. controls (-2.9,.7) and (-1.7,-.45) .. (-.3,.35);
+  \draw[very thick,MutedText,dashed] (-.3,.35) .. controls (1.2,1.1) and (2.6,-.8) .. (4.1,.55);
+  \draw[YellowAccent,thick] (-.3,-.35)--(-.3,1.45);
+  \node[font=\scriptsize\sffamily,text=BlueAccent] at (-2.25,1.15) {可见过去};
+  \node[font=\scriptsize\sffamily,text=MutedText] at (2.0,1.15) {不可见未来};
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (-.3,-.7) {$s$};
+  \node[conceptpurple] at (0,-1.55) {$\alpha_s$ 可依赖蓝色路径，但不能依赖灰色增量};
+\end{tikzpicture}
+\captionof{figure}{容许控制的非预见性约束。}
+\end{center}
+
+\section{典范 Wiener 空间}
+
+取
+\[
+\Omega=C([0,T];\R^r),\qquad
+W_s(\omega)=\omega(s),
+\]
+配以 Wiener 测度与自然滤过。每个样本点本身就是一条连续路径，控制可写成路径泛函
+\[
+\alpha_s(\omega)=\Phi_s\bigl(\omega|_{[0,s]}\bigr).
+\]
+这一典范表示使“截断过去”“平移未来”和“拼接路径”都变成显式映射，而不是隐藏在抽象概率空间中。
+
+固定确定时刻 $t$，定义未来增量路径
+\[
+(\theta_t\omega)(r)=\omega(t+r)-\omega(t),\qquad 0\le r\le T-t.
+\]
+在适当条件下，$\theta_tW$ 与 $\mathcal F_t$ 独立，且仍是从零开始的 Brown 运动。这是把后续问题重启为一个新控制问题的概率基础。
+
+\section{标准 Borel 空间为何重要}
+
+可分完备度量空间及其 Borel $\sigma$-代数称为标准 Borel 空间。欧氏空间、连续路径空间和常见控制路径空间都属于这一类。这个假设看似抽象，却保证两件关键工具：
+
+\begin{enumerate}
+  \item 存在良好的正则条件概率，可把“给定过去”表示为概率核；
+  \item 多值映射满足条件时存在可测选择，可按随机状态选择近似最优控制。
+\end{enumerate}
+
+\begin{pitfall}[逐点选最优不代表可测]
+对每个 $x$ 单独说“取一个最优控制 $\alpha^x$”使用了选择公理，却没有保证 $x\mapsto\alpha^x$ 可测。DPP 中需要的不是一堆孤立选择，而是一张可用于随机变量 $X_s$ 的可测控制表。
+\end{pitfall}
+
+\section{控制的平移与拼接}
+
+设前段控制为 $\alpha$，后段控制族为 $\beta^y$，其中 $y$ 表示中间状态。确定时刻 $s$ 的拼接控制形式上写成
+\[
+(\alpha\otimes_s\beta)_r=
+\begin{cases}
+\alpha_r,&t\le r<s,\\
+\beta^{X_s}_r,&s\le r\le T.
+\end{cases}
+\]
+严格构造时，$\beta^{X_s}$ 还要作用于 $s$ 后的增量路径 $\theta_s\omega$。若 $(y,\omega)\mapsto\beta^y(\omega)$ 可测且每个 $\beta^y$ 非预见，则拼接控制仍然容许。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.3,0)--(4.4,0);
+  \draw[BlueAccent,line width=3pt] (-4,0)--(-.35,0);
+  \draw[YellowAccent,line width=3pt] (-.35,0)--(4.05,0);
+  \fill[SoftWhite] (-.35,0) circle (3pt);
+  \node[font=\scriptsize\sffamily,text=BlueAccent] at (-2.1,.55) {前段 $\alpha$};
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (1.8,.55) {按 $X_s$ 选择后段 $\beta^{X_s}$};
+  \node[font=\scriptsize\sffamily,text=SoftWhite] at (-.35,-.55) {$s$};
+  \draw[softflow] (-.35,1.55)--(-.35,.35);
+  \node[conceptpurple] at (-.35,2.05) {状态 $X_s$ 是两段之间唯一必要的 Markov 接口};
+\end{tikzpicture}
+\captionof{figure}{控制拼接：过去固定，未来根据随机中间状态重新选择。}
+\end{center}
+
+\section{为什么值函数是确定函数}
+
+在某些强表述中，先定义的“条件最优成本”可能看起来像 $\mathcal F_t$-可测随机变量。要证明它其实等于常数 $V(t,x)$，通常利用：
+
+\begin{itemize}
+  \item 从确定状态 $x$ 出发，未来 Brown 增量与 $\mathcal F_t$ 独立；
+  \item 容许控制可在未来增量空间上重表示；
+  \item 对过去路径做保持未来 Wiener 测度的变换，值不变。
+\end{itemize}
+
+因此 Markov 系数下，过去如何走到 $(t,x)$ 不再影响从该点开始的最优值。若模型含路径依赖，则状态必须扩充为整段历史，值函数也会变成路径泛函。
+
+\section{值函数的连续性估计}
+
+若 $b,\sigma,f,g$ 对 $x$ 一致 Lipschitz，两个同控制、同 Brown 运动驱动的状态满足
+\[
+\E\sup_{t\le r\le T}\abs{X_r^{t,x,\alpha}-X_r^{t,y,\alpha}}^2
+\le C\abs{x-y}^2.
+\]
+由成本差估计并对控制取 infimum，可得
+\[
+\abs{V(t,x)-V(t,y)}\le C\abs{x-y}.
+\]
+时间连续性通常由短时间状态增量 $\E\abs{X_{t+h}-x}\le C\sqrt h$ 推出。连续性既服务于 PDE 理论，也允许在 DPP 证明中用有限状态网格近似随机中间状态。
+
+\begin{takeaway}
+\begin{enumerate}
+  \item 容许控制必须非预见且具有足够的联合可测性；
+  \item 典范 Wiener 空间把过去、未来增量和平移操作显式化；
+  \item 标准 Borel 结构保证正则条件概率与可测选择；
+  \item 控制拼接是 DPP 的真正技术核心，状态连续性帮助把不可数选择离散化。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 判断 $\alpha_s=\mathbf 1_{\{W_T>0\}}$ 是否容许，并说明原因。
+  \item 在典范路径空间写出 $\theta_t$，验证它只记录 $t$ 后的增量。
+  \item 说明为什么“每个 $x$ 有一个 $\varepsilon$-最优控制”还不足以直接代入随机变量 $X_s$。
+\end{enumerate}
+\end{exercisebox}

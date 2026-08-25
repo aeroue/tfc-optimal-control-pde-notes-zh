@@ -1,0 +1,174 @@
+\chapter{势平均场博弈与无限维 Hamilton--Jacobi 方程}
+\lectureribbon{05}{On a Mean Field Game Equation V}{Wilfrid Gangbo}
+\begin{learninggoals}
+\begin{itemize}
+  \item 识别耦合项何时来自分布泛函的一阶变分，即“势结构”；
+  \item 把势平均场博弈写成 Wasserstein 空间上的整体变分问题；
+  \item 理解经验测度近似中的 $1/N$ 与 $1/N^2$ 导数尺度；
+  \item 看见有限维 Hamilton--Jacobi 方程与 Hilbert/Wasserstein HJ 方程的对应。
+\end{itemize}
+\end{learninggoals}
+
+\section{势结构：许多个体的一阶条件来自同一个能量}
+
+若存在分布泛函 $\mathcal F,\mathcal G$，使耦合成本满足
+\[
+F(x,m)=\frac{\delta\mathcal F}{\delta m}(m,x),
+\qquad
+G(x,m)=\frac{\delta\mathcal G}{\delta m}(m,x),
+\]
+则称该 MFG 具有\keyterm{势结构}。这与有限维势博弈相同：每个玩家看到的边际成本，都是同一个全局势能沿该玩家方向的导数。
+
+\begin{center}
+\begin{tikzpicture}[node distance=13mm and 20mm]
+  \node[conceptpurple] (energy) {整体势能\\$\mathcal F(m)$};
+  \node[conceptyellow,below left=of energy] (p1) {玩家 1\\边际成本};
+  \node[conceptyellow,below=of energy] (p2) {玩家 $i$\\边际成本};
+  \node[conceptyellow,below right=of energy] (pn) {玩家 $N$\\边际成本};
+  \draw[flow] (energy)--node[left,font=\scriptsize\sffamily,text=MutedText]{变分} (p1);
+  \draw[flow] (energy)--(p2);
+  \draw[flow] (energy)--node[right,font=\scriptsize\sffamily,text=MutedText]{变分} (pn);
+\end{tikzpicture}
+\captionof{figure}{势结构把许多彼此耦合的一阶最优性条件整合为一个全局能量的变分。}
+\end{center}
+
+\section{分布空间上的社会作用量}
+
+考虑满足连续性方程的 $(m_t,v_t)$：
+\[
+\partial_tm_t+\nabla\cdot(m_tv_t)=0,
+\qquad m(0)=m_0.
+\]
+势问题的作用量可写成
+\focusequation{Wasserstein 空间中的整体优化}{%
+\[
+\mathcal J(m,v)=
+\int_0^T\left[
+\int_{\R^d}L(x,v_t(x))m_t(\dd x)+\mathcal F(m_t)
+\right]\dd t
++\mathcal G(m_T).
+\]}
+对约束引入带符号约定的乘子 $-u$，对 $v$ 的变分给出最优反馈，对 $m$ 的变分给出 HJ 方程，约束本身给出连续性方程。于是 MFG 系统恰是这个无限维变分问题的 Euler--Lagrange 条件。
+
+\begin{derivation}[以二次动能为例]
+令 $L(v)=\tfrac12\abs v^2$。把 $u$ 作为连续性方程的乘子并对 $v$ 变分：
+\[
+0=\delta_v\mathcal J
+=\int_0^T\int (v+\nabla u)\cdot\delta v\,m\dd x\dd t,
+\]
+所以 $v^*=-\nabla u$。代回作用量并对 $m$ 变分，得到
+\[
+-\partial_tu+\frac12\abs{\nabla u}^2
+=\frac{\delta\mathcal F}{\delta m}(m,x),
+\qquad
+\partial_tm-\nabla\cdot(m\nabla u)=0.
+\]
+\end{derivation}
+
+\begin{pitfall}[势最优解与所有 MFG 均衡并非总是一一对应]
+势泛函的全局极小点通常给出均衡，但非凸时还可能有局部极值或鞍点。反过来，一阶 MFG 解只满足驻值条件，不自动保证全局最优。
+\end{pitfall}
+
+\section{经验测度：把分布泛函拉回有限维}
+
+给定粒子配置 $\symbf{x}=(x_1,\ldots,x_N)$，定义经验测度与对称函数
+\[
+m_{\symbf{x}}^N=\frac1N\sum_{i=1}^N\delta_{x_i},
+\qquad
+F_N(\symbf{x})=\mathcal F(m_{\symbf{x}}^N).
+\]
+若 $\mathcal F$ 足够光滑，则链式法则给出
+\[
+D_{x_i}F_N(\symbf{x})=\frac1N
+D_m\mathcal F(m_{\symbf{x}}^N,x_i).
+\]
+二阶导具有不同尺度：对角块通常含 $1/N$ 的“同粒子”项，非对角块是 $1/N^2$ 的“跨粒子”项。示意地，
+\[
+D_{x_ix_j}^2F_N=
+\begin{cases}
+O(N^{-1})+O(N^{-2}),&i=j,\\
+O(N^{-2}),&i\ne j.
+\end{cases}
+\]
+单个交叉作用很弱，但有 $N(N-1)$ 个交叉块，整体仍可产生有限效应。
+
+\begin{center}
+\begin{tikzpicture}[scale=.82]
+  \foreach \i in {0,...,6}{
+    \foreach \j in {0,...,6}{
+      \ifnum\i=\j
+        \fill[BlueAccent] (\i*.58,\j*.58) rectangle ++(.48,.48);
+      \else
+        \fill[PurpleAccent,opacity=.42] (\i*.58,\j*.58) rectangle ++(.48,.48);
+      \fi
+    }
+  }
+  \draw[MutedText] (0,0) rectangle (4.0,4.0);
+  \node[font=\scriptsize\sffamily,text=BlueAccent,right] at (4.45,3.1) {对角：$O(N^{-1})$};
+  \node[font=\scriptsize\sffamily,text=PurpleAccent,right] at (4.45,2.45) {非对角：$O(N^{-2})$};
+  \node[font=\scriptsize\sffamily,text=MutedText,right,text width=4.1cm] at (4.45,1.45) {Hessian 的块结构记录“自己移动”与“别人移动”对分布泛函的不同影响。};
+\end{tikzpicture}
+\captionof{figure}{经验测度泛函 Hessian 的尺度图。}
+\end{center}
+
+\section{Hilbert 空间上的 Hamilton--Jacobi 方程}
+
+把分布价值 $\mathcal U(t,m)$ 提升为 $\widetilde{\mathcal U}(t,X)=\mathcal U(t,\Law(X))$。对二次动能，一个典型的无限维 HJ 方程是
+\[
+\partial_t\widetilde{\mathcal U}(t,X)
+-\frac12\norm{D_X\widetilde{\mathcal U}(t,X)}_{L^2}^2
++\widetilde{\mathcal F}(X)=0,
+\qquad
+\widetilde{\mathcal U}(T,X)=\widetilde{\mathcal G}(X),
+\]
+符号由时间方向和最小化约定决定。因为提升函数只依赖 $\Law(X)$，它的梯度天然具有 $D_m\mathcal U(m)(X)$ 的形式。
+
+\begin{intuition}[为什么 Hilbert 提升有用]
+Wasserstein 空间弯曲且没有线性加法；$L^2$ 空间可以直接使用 Fréchet 导数、半群和经典 HJ 技术。代价是必须始终保持“同分布重排不变”这一对称性。
+\end{intuition}
+
+\section{一个相互作用势的几何图像}
+
+令
+\[
+\mathcal F(m)=\int V(x)m(\dd x)+\frac\kappa2\iint W(x-y)m(\dd x)m(\dd y).
+\]
+外势 $V$ 塑造地形，相互作用核 $W$ 决定粒子相吸或相斥。$D_m\mathcal F$ 是分布空间中的坡度；若做梯度流，质量沿 $-D_m\mathcal F$ 下坡；若做最优控制/Hamilton 流，还会引入动量和未来价值，因此不能把二者混为一谈。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.2,0)--(4.2,0) node[right,font=\scriptsize\sffamily] {分布方向};
+  \draw[axis] (-3.8,-.2)--(-3.8,3) node[above,font=\scriptsize\sffamily] {$\mathcal F$};
+  \draw[BlueAccent,line width=2pt,domain=-3.6:3.8,samples=100] plot (\x,{.10*(\x+2.2)^2*(\x-1.6)^2+.28});
+  \fill[YellowAccent] (1.6,.28) circle (3pt);
+  \draw[warmflow] (.1,2.0)--(1.25,.55);
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (2.35,.65) {低势能分布};
+  \node[font=\scriptsize\sffamily,text=MutedText] at (.4,2.38) {$-\operatorname{grad}_{W_2}\mathcal F$};
+\end{tikzpicture}
+\captionof{figure}{分布不是沿横轴移动的一个数；图中的“方向”代表整个位移场。能量地形只是无限维几何的二维投影。}
+\end{center}
+
+\section{势结构与 Lasry--Lions 单调性}
+
+势性回答“耦合是否来自某个能量”；单调性回答“两个分布之间的耦合是否具有稳定的正向性”。常见条件为
+\[
+\int_{\R^d}\bigl(F(x,m)-F(x,m')\bigr)(m-m')(\dd x)\ge0.
+\]
+单调性常用于唯一性，势性常用于存在性和变分构造；二者相关但不等价。
+
+\begin{takeaway}
+\begin{enumerate}
+  \item 势 MFG 的个体边际成本来自统一泛函 $\mathcal F,\mathcal G$；
+  \item MFG 系统是受连续性方程约束的分布作用量的一阶条件；
+  \item 经验测度把无限维泛函拉回对称的有限维函数，并产生清晰的 $1/N$ 尺度；
+  \item Hilbert 提升把 Wasserstein HJ 方程置于可微的线性空间中。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 对 $\mathcal F(m)=\tfrac12\iint\abs{x-y}^2m(\dd x)m(\dd y)$ 计算 $\delta\mathcal F/\delta m$。
+  \item 从 $F_N(\symbf{x})=\mathcal F(m_{\symbf{x}}^N)$ 推导一阶导数的 $1/N$ 因子。
+  \item 举例说明“势性但不凸”和“单调但未必显式给出势”的区别。
+\end{enumerate}
+\end{exercisebox}

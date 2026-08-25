@@ -1,0 +1,113 @@
+\chapter*{课程地图：从一个粒子到一群理性主体}
+\addcontentsline{toc}{chapter}{课程地图：从一个粒子到一群理性主体}
+\markboth{课程地图}{课程地图}
+
+\begin{learninggoals}[读完这一章，你会看到]
+\begin{itemize}
+  \item 两条看似独立的路线，为什么都源自 Bellman 的“向后看价值、向前走状态”；
+  \item 平均场博弈、最优控制、HJB 方程、连续性方程与主方程之间的角色分工；
+  \item 十讲内容的依赖关系，以及每一讲解决了哪个数学障碍。
+\end{itemize}
+\end{learninggoals}
+
+\section*{一个统一问题}
+
+考虑状态 $X_t$。我们可以选择控制 $a_t$，但未来既受动力学影响，也可能受随机噪声或其他参与者影响。优化问题的核心是
+\[
+\textcolor{YellowAccent}{\text{总代价最小}}
+\quad\text{且}\quad
+\textcolor{BlueAccent}{\text{状态服从动力学}}.
+\]
+如果只有一个决策者，最优未来成本由\keyterm{值函数} $V(t,x)$ 记录；如果有海量相互作用的决策者，单个主体还必须知道总体分布 $m_t$，于是价值变为 $u(t,x)$，乃至依赖整份分布的 $U(t,x,m)$。
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 13mm]
+  \node[concept] (state) {当前状态\\$x$};
+  \node[conceptyellow,right=of state] (choice) {选择控制\\$a$};
+  \node[conceptgreen,right=of choice] (next) {下一时刻\\$X_{t+\Delta t}$};
+  \node[conceptpurple,below=of choice] (pop) {群体分布\\$m_t$};
+  \node[conceptyellow,above=of choice] (value) {未来价值\\$V$ 或 $U$};
+  \draw[flow] (state)--(choice);
+  \draw[flow] (choice)--(next);
+  \draw[warmflow] (value)--(choice);
+  \draw[softflow,<->] (pop)--(choice);
+  \draw[softflow,bend left=25] (next) to (value);
+\end{tikzpicture}
+\captionof{figure}{最优控制的闭环：价值指导选择，选择推动状态，状态更新未来价值。平均场博弈多出群体分布这一条反馈通道。}
+\end{center}
+
+\section*{两条主线}
+
+\begin{tcolorbox}[colback=NightPanelTwo,colframe=GridLine]
+\begin{tabularx}{\textwidth}{@{}>{\sffamily\bfseries\color{BlueAccent}}p{0.18\textwidth}YY@{}}
+\toprule
+ & \textcolor{YellowAccent}{前五讲：群体与分布} & \textcolor{GreenAccent}{后五讲：随机控制与 DPP} \\
+\midrule
+对象 & 个体状态 $x$ 与总体分布 $m$ & 受控扩散状态 $X_s$ \\
+几何 & Wasserstein 概率测度空间 & 欧氏空间及概率空间 \\
+向后方程 & HJ / 主方程 & HJB 方程 \\
+向前方程 & 连续性或 Fokker--Planck 方程 & 受控随机微分方程 \\
+关键原则 & Nash 一致性、单调性、势结构 & 动态规划、验证、可测拼接 \\
+弱解语言 & 测度解、黏性思想 & 黏性解与比较原理 \\
+\bottomrule
+\end{tabularx}
+\end{tcolorbox}
+
+\section*{十讲依赖图}
+
+\begin{center}
+\begin{tikzpicture}[node distance=8mm and 9mm,scale=.90,transform shape]
+\node[concept] (l1) {01\\从 $N$ 人博弈到 MFG};
+\node[concept,right=of l1] (l2) {02\\Wasserstein 几何};
+\node[concept,right=of l2] (l3) {03\\Lions 导数与主方程};
+\node[concept,right=of l3] (l4) {04\\特征线与流};
+\node[concept,right=of l4] (l5) {05\\势平均场博弈};
+
+\node[conceptyellow,below=14mm of l1] (l6) {06\\随机控制与 HJB};
+\node[conceptyellow,right=of l6] (l7) {07\\验证与反馈};
+\node[conceptyellow,right=of l7] (l8) {08\\可测结构};
+\node[conceptyellow,right=of l8] (l9) {09\\DPP 严格证明};
+\node[conceptyellow,right=of l9] (l10) {10\\黏性解与唯一性};
+
+\foreach \a/\b in {l1/l2,l2/l3,l3/l4,l4/l5}{\draw[flow] (\a)--(\b);}
+\foreach \a/\b in {l6/l7,l7/l8,l8/l9,l9/l10}{\draw[warmflow] (\a)--(\b);}
+\draw[softflow,dashed] (l1) -- node[left,font=\scriptsize\sffamily,text=MutedText]{Bellman 思想} (l6);
+\draw[softflow,dashed] (l3) -- node[right,font=\scriptsize\sffamily,text=MutedText]{无限维 HJ} (l10);
+\end{tikzpicture}
+\captionof{figure}{课程不是十个孤立主题，而是两条并行推进、互相照亮的路线。}
+\end{center}
+
+\section*{三组必须区分的对象}
+
+\subsection*{状态、分布与分布上的函数}
+
+\begin{itemize}
+  \item $x\in\R^d$：某个具体个体的位置或状态；
+  \item $m\in\PP_2(\R^d)$：总体状态的概率分布；
+  \item $\mathcal F(m)\in\R$：给整份分布打分的泛函；
+  \item $U(t,x,m)$：既看个体位置，也看总体分布的价值。
+\end{itemize}
+
+把这四类对象混在一起，是学习主方程最常见的障碍。可以把 $x$ 想成“地图上的一个点”，$m$ 是“整张热力图”，$\mathcal F$ 是“对热力图的总评分”，而 $U$ 则是“在这张热力图背景下，一个点的未来价值”。
+
+\subsection*{开环控制与反馈控制}
+
+开环控制 $\alpha_s$ 是预先给出的适应过程；反馈控制写成 $\alpha_s=\hat a(s,X_s)$，会根据当前状态实时调整。HJB 方程给出的通常正是最优反馈律
+\[
+\hat a(t,x)\in\argmin_{a\in A}
+\left\{b(t,x,a)\cdot D V(t,x)
++\frac12\Tr\!\left[\sigma\sigma^\top(t,x,a)D^2V(t,x)\right]+f(t,x,a)\right\}.
+\]
+
+\subsection*{经典解与黏性解}
+
+经典解要求偏导数真实存在；黏性解不直接对 $V$ 求二阶导，而是让光滑测试函数从上方或下方接触 $V$。这不是“更模糊”的解，而是把 HJB 的最优性结构保存到不可微情形中的正确语言。
+
+\begin{takeaway}[课程总纲]
+\begin{enumerate}
+  \item \blue{状态向前演化}：SDE、连续性方程或 Fokker--Planck 方程；
+  \item \yellow{价值向后传播}：HJ、HJB 或主方程；
+  \item \green{最优控制把两者闭合}：价值梯度产生反馈，反馈又改变状态分布；
+  \item 当光滑性消失时，\purple{动态规划 $\Rightarrow$ 黏性解 $\Rightarrow$ 比较原理}维持理论闭环。
+\end{enumerate}
+\end{takeaway}

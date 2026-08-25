@@ -1,0 +1,174 @@
+\chapter{随机最优控制、动态规划与 HJB 方程}
+\lectureribbon{06}{HJB Equations, DPP and Stochastic Optimal Control I}{Andrzej Święch}
+\begin{learninggoals}
+\begin{itemize}
+  \item 建立受控随机微分方程、成本泛函与值函数；
+  \item 理解动态规划原理为何是“最优性的时间一致性”；
+  \item 用短时间展开与 Itô 公式形式推导 HJB 方程；
+  \item 认识 Nisio 半群如何把动态规划写成算子半群。
+\end{itemize}
+\end{learninggoals}
+
+\section{受控扩散：决策与噪声共同推动状态}
+
+在带滤过的概率空间 $(\Omega,\mathcal F,(\mathcal F_s)_{s\ge0},\Pp)$ 上，令 $W$ 为 $r$ 维 Brown 运动。控制取值于集合 $A$，容许控制 $\alpha_s$ 必须逐步可测，不能偷看未来噪声。状态方程为
+\focusequation{受控随机微分方程}{%
+\[
+\dd X_s=b(s,X_s,\alpha_s)\dd s
++\sigma(s,X_s,\alpha_s)\dd W_s,
+\qquad X_t=x.
+\]}
+漂移 $b$ 是可操纵的平均方向，扩散矩阵 $\sigma$ 决定随机扰动的形状。给定运行成本 $f$ 与终端成本 $g$，
+\[
+J(t,x;\alpha)=
+\E\!\left[
+\int_t^T f(s,X_s,\alpha_s)\dd s+g(X_T)
+\right],
+\qquad
+V(t,x)=\inf_{\alpha\in\mathcal A_t}J(t,x;\alpha).
+\]
+$V(t,x)$ 把从 $(t,x)$ 出发的全部未来随机选择压缩成一个数。
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+  \draw[axis] (-4.4,-1.7)--(4.6,-1.7) node[right,font=\scriptsize\sffamily] {$s$};
+  \fill[BlueAccent] (-4,-.2) circle (3.5pt);
+  \foreach \k/\c/\yy in {1/BlueAccent/.8,2/PurpleAccent/.2,3/GreenAccent/-.55,4/YellowAccent/1.35,5/OrangeAccent/-1.1}{
+    \draw[\c,thick] (-4,-.2)
+      .. controls (-2.8,{-.1+.22*\k}) and (-1.6,{\yy-.45}) ..
+      (-.6,\yy)
+      .. controls (1.0,{\yy+.35-\k*.08}) and (2.6,{\yy-.25+\k*.06}) ..
+      (4.2,{\yy+.15});
+  }
+  \node[font=\scriptsize\sffamily,text=BlueAccent] at (-3.45,.2) {同一初值};
+  \node[conceptyellow] at (0,2.35) {控制改变整棵未来轨迹树的分布};
+\end{tikzpicture}
+\captionof{figure}{噪声产生许多可能路径；策略的目标不是指定一条轨迹，而是优化所有路径上的期望成本。}
+\end{center}
+
+\section{动态规划原理：把长问题切成两段}
+
+对 $t\le\tau\le T$，动态规划原理（DPP）写成
+\focusequation{Bellman 递归}{%
+\[
+V(t,x)=\inf_{\alpha\in\mathcal A_t}
+\E\!\left[
+\int_t^\tau f(s,X_s,\alpha_s)\dd s
++V(\tau,X_\tau)
+\right].
+\]}
+前半段支付即时成本，后半段不再展开所有未来控制，而由 $V(\tau,X_\tau)$ 汇总。它要求最优策略的尾部在到达的随机状态上仍然最优，这就是\keyterm{时间一致性}。
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 10mm]
+  \node[concept] (now) {现在\\$(t,x)$};
+  \node[conceptgreen,right=of now] (tau) {中间状态\\$(\tau,X_\tau)$};
+  \node[conceptyellow,right=of tau] (end) {终端\\$g(X_T)$};
+  \draw[flow] (now)--node[above,font=\scriptsize\sffamily,text=MutedText]{$\int_t^\tau f\,\dd s$} (tau);
+  \draw[warmflow] (tau)--node[above,font=\scriptsize\sffamily,text=MutedText]{$V(\tau,X_\tau)$} (end);
+  \draw[softflow,bend right=28] (now) to node[below,font=\scriptsize\sffamily,text=BlueAccent]{一次优化 = 当前一步 + 最优余程} (end);
+\end{tikzpicture}
+\captionof{figure}{Bellman 原理把连续时间控制变成可无限细分的递归。}
+\end{center}
+
+\begin{pitfall}[DPP 不是普通的期望塔性质]
+条件期望只能分解一个已给定策略的成本；DPP 还必须证明“前段控制”和“依随机中间状态选择的后段控制”能够可测地拼成容许控制。第八、九讲专门处理这一技术核心。
+\end{pitfall}
+
+\section{从 DPP 到 HJB：只看一个极短时间片}
+
+定义固定控制 $a$ 下的扩散生成元
+\[
+\mathcal L^a\phi(t,x)
+=b(t,x,a)\cdot D_x\phi(t,x)
++\frac12\Tr\!\left[\sigma\sigma^\top(t,x,a)D_x^2\phi(t,x)\right].
+\]
+在 $[t,t+h]$ 暂取常控制 $a$。若 $V$ 光滑，Itô 公式给出
+\[
+\E[V(t+h,X_{t+h})]-V(t,x)
+=\E\int_t^{t+h}\bigl(\partial_sV+\mathcal L^aV\bigr)(s,X_s)\dd s.
+\]
+代入 DPP，除以 $h$ 并令 $h\downarrow0$，形式上得到
+\focusequation{Hamilton--Jacobi--Bellman 方程}{%
+\[
+\partial_tV(t,x)+
+\inf_{a\in A}\left\{
+b(t,x,a)\cdot DV
++\frac12\Tr\!\left[\sigma\sigma^\top(t,x,a)D^2V\right]
++f(t,x,a)
+\right\}=0,
+\quad V(T,x)=g(x).
+\]}
+
+\begin{derivation}[每一项来自哪里]
+\begin{itemize}
+  \item $\partial_tV$：剩余时间缩短造成的价值变化；
+  \item $b\cdot DV$：漂移沿价值曲面方向移动；
+  \item $\tfrac12\Tr(\sigma\sigma^\top D^2V)$：Brown 运动的二次变差；
+  \item $f$：当前瞬时成本；
+  \item $\inf_a$：在每个 $(t,x)$ 上重新选择最佳动作。
+\end{itemize}
+\end{derivation}
+
+\section{Nisio 半群：动态规划的算子形式}
+
+对 $t\le s$ 和终端函数 $\varphi$，定义
+\[
+(\mathcal S_{t,s}\varphi)(x)
+=\inf_{\alpha}
+\E\!\left[
+\int_t^s f(r,X_r,\alpha_r)\dd r+\varphi(X_s)
+\right].
+\]
+DPP 等价于
+\[
+\mathcal S_{t,s}\circ\mathcal S_{s,r}
+=\mathcal S_{t,r},\qquad t\le s\le r,
+\]
+并且 $V(t,\cdot)=\mathcal S_{t,T}g$。线性 Markov 半群传播期望，Nisio 半群则在传播中加入最小化，因此通常是非线性的。
+
+\begin{intuition}[HJB 是半群的无穷小生成方程]
+把 $s=t+h$，研究 $(\mathcal S_{t,t+h}\varphi-\varphi)/h$ 的极限，得到的正是 HJB 算子。于是 DPP 是有限时间尺度的递归，HJB 是它的微分形式。
+\end{intuition}
+
+\section{可算例：一维最小能量控制}
+
+令 $\dd X_s=\alpha_s\dd s$，成本
+\[
+J(t,x;\alpha)=\int_t^T\frac12\alpha_s^2\dd s+\frac q2X_T^2,
+\qquad q>0.
+\]
+HJB 为
+\[
+\partial_tV+\inf_a\{aV_x+\tfrac12a^2\}=0
+\quad\Longrightarrow\quad
+\partial_tV-\frac12(V_x)^2=0.
+\]
+作二次猜测 $V(t,x)=\tfrac12P(t)x^2$，得到
+\[
+P'(t)=P(t)^2,\qquad P(T)=q,
+\qquad
+P(t)=\frac{q}{1+q(T-t)}.
+\]
+最优反馈为
+\[
+\alpha^*(t,x)=-V_x(t,x)=-P(t)x.
+\]
+越靠近终端，$P(t)$ 越大，控制越积极地把状态拉回原点。
+
+\begin{takeaway}
+\begin{enumerate}
+  \item 值函数把未来所有随机策略的最优期望成本压缩到当前状态；
+  \item DPP 表达最优尾策略仍然最优；
+  \item 短时间 DPP 加 Itô 公式产生 HJB；
+  \item Nisio 半群是 DPP 的算子语言，HJB 是其无穷小生成方程。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 若 $\sigma$ 与控制无关，指出 HJB 中控制最小化只作用于哪些项。
+  \item 对 $\dd X_s=\alpha_s\dd s+\eta\dd W_s$ 重做一维二次例子，观察扩散如何改变值函数常数项。
+  \item 写出零运行成本时的 Nisio 半群，并与普通 Markov 半群比较。
+\end{enumerate}
+\end{exercisebox}

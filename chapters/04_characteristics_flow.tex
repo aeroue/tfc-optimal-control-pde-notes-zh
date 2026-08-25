@@ -1,0 +1,158 @@
+\chapter{特征线、连续性方程与流}
+\lectureribbon{04}{On a Mean Field Game Equation IV}{Wilfrid Gangbo}
+\begin{learninggoals}
+\begin{itemize}
+  \item 在“跟着粒子走”的 Lagrangian 描述与“站在空间看密度”的 Eulerian 描述之间切换；
+  \item 从特征线推出连续性方程，并理解流的半群与可逆性；
+  \item 看懂经典主方程解如何沿特征流构造，以及光滑性为何会失效。
+\end{itemize}
+\end{learninggoals}
+
+\section{两种观察同一群体的方式}
+
+设初始标签为 $a$，粒子轨迹 $X_t(a)$ 满足
+\[
+\dot X_t(a)=v_t(X_t(a)),\qquad X_0(a)=a.
+\]
+若初始标签按 $m_0$ 分布，则时刻 $t$ 的分布是
+\[
+m_t=(X_t)_\#m_0.
+\]
+左式跟踪每个标签，是\keyterm{Lagrangian 描述}；右式只记录每个位置有多少质量，是\keyterm{Eulerian 描述}。
+
+\begin{center}
+\begin{tikzpicture}[scale=.95]
+  \node[concept] (lag) at (-3.5,2.2) {Lagrangian\\粒子轨迹 $X_t(a)$};
+  \node[conceptgreen] (eul) at (3.5,2.2) {Eulerian\\密度/测度 $m_t$};
+  \draw[flow,<->] (lag)--node[above,font=\scriptsize\sffamily,text=MutedText]{$m_t=(X_t)_\#m_0$} (eul);
+  \foreach \y/\c in {-1.2/BlueAccent,-.45/PurpleAccent,.3/GreenAccent,1.05/YellowAccent}{
+    \draw[\c,thick] (-4.4,-1.2+\y*.15) .. controls (-1.5,\y) and (1.4,-\y*.25) .. (4.3,\y*.55);
+  }
+  \draw[axis] (-4.6,-1.7)--(4.6,-1.7) node[right,font=\scriptsize\sffamily] {$t$};
+  \node[font=\scriptsize\sffamily,text=MutedText] at (0,-2.15) {每条曲线是一粒质量；任意竖切片给出该时刻的总体分布};
+\end{tikzpicture}
+\captionof{figure}{轨迹与密度不是两套动力学，而是同一质量运动的微观和宏观视角。}
+\end{center}
+
+\section{从推前到连续性方程}
+
+对测试函数 $\varphi$，由推前定义
+\[
+\int\varphi(x)m_t(\dd x)=\int\varphi(X_t(a))m_0(\dd a).
+\]
+对时间求导：
+\[
+\frac{\dd}{\dd t}\int\varphi\dd m_t
+=\int\nabla\varphi(X_t(a))\cdot\dot X_t(a)m_0(\dd a)
+=\int\nabla\varphi(x)\cdot v_t(x)m_t(\dd x).
+\]
+分部积分便得到
+\focusequation{Eulerian 质量守恒}{%
+\[
+\partial_tm_t+\nabla\cdot(m_tv_t)=0.
+\]}
+
+\begin{intuition}[散度项的含义]
+对一个小区域，$\partial_tm$ 记录内部质量变化，$\nabla\cdot(mv)$ 记录净流出。二者之和为零，表示粒子没有凭空产生或消失。
+\end{intuition}
+
+\section{HJ 方程的特征线：价值梯度变成共轭动量}
+
+考虑一阶 Hamilton--Jacobi 方程
+\[
+-\partial_tu(t,x)+H(x,D_xu(t,x))=F(x,m_t).
+\]
+令共轭动量 $P_t=D_xu(t,X_t)$。在光滑情形下，特征系统具有 Hamilton 结构：
+\[
+\dot X_t=-D_pH(X_t,P_t),
+\qquad
+\dot P_t=D_xH(X_t,P_t)-D_xF(X_t,m_t),
+\]
+符号随 HJ 约定相应改变。$X$ 告诉质量向哪里走，$P$ 告诉价值曲面在该处朝哪里倾斜。
+
+\begin{examplebox}[二次 Hamiltonian 与 Newton 定律]
+若 $H(x,p)=\tfrac12\abs p^2-V(x)$，忽略耦合项并采用 $\dot X=-P$ 的约定，则
+\[
+\ddot X=-\dot P=\nabla V(X).
+\]
+调整 Hamiltonian 的正负约定后便得到熟悉的 $\ddot X=-\nabla V(X)$。要点不是某个固定负号，而是 HJ 特征线等价于位置--动量的 Hamilton 动力学。
+\end{examplebox}
+
+\section{流、逆流与半群}
+
+记 $\Phi_s^t(a)$ 为从时刻 $s$、位置 $a$ 出发的特征轨迹在时刻 $t$ 的位置。若速度场足够光滑，唯一性给出
+\[
+\Phi_s^t\circ\Phi_r^s=\Phi_r^t,
+\qquad
+(\Phi_s^t)^{-1}=\Phi_t^s.
+\]
+分布流相应满足
+\[
+m_t=(\Phi_s^t)_\#m_s,
+\qquad
+\Sigma_s^t(m_s):=(\Phi_s^t)_\#m_s,
+\qquad
+\Sigma_s^t\circ\Sigma_r^s=\Sigma_r^t.
+\]
+
+\begin{center}
+\begin{tikzpicture}[node distance=16mm]
+  \node[concept] (r) {$m_r$};
+  \node[conceptpurple,right=of r] (s) {$m_s=\Sigma_r^s(m_r)$};
+  \node[conceptgreen,right=of s] (t) {$m_t=\Sigma_s^t(m_s)$};
+  \draw[flow] (r)--(s);
+  \draw[flow] (s)--(t);
+  \draw[warmflow,bend right=33] (r) to node[below,font=\scriptsize\sffamily,text=YellowAccent]{$\Sigma_r^t$} (t);
+\end{tikzpicture}
+\captionof{figure}{半群性质是动力系统的“可拼接性”：时间分段不改变最终结果。}
+\end{center}
+
+\section{价值函数作为最小作用量}
+
+对给定分布流 $m_t$，从 $(s,x)$ 出发的确定性价值可写为
+\[
+u(s,x)=\inf_{\substack{\gamma(s)=x\\\dot\gamma\ \text{容许}}}
+\left\{
+\int_s^T\bigl[L(\gamma_t,\dot\gamma_t)+F(\gamma_t,m_t)\bigr]\dd t
++G(\gamma_T,m_T)
+\right\}.
+\]
+最优曲线满足 Euler--Lagrange/Hamilton 方程；另一方面，Bellman 原理给出 HJ 方程。\emterm{变分、特征线和 PDE} 是同一优化结构的三种语言。
+
+\begin{derivation}[沿特征线恢复价值]
+若 $u$ 光滑且 $X_t$ 采用最优速度，则
+\[
+\frac{\dd}{\dd t}u(t,X_t)
+=\partial_tu+D_xu\cdot\dot X_t.
+\]
+利用 HJ 方程与 Legendre 对偶，右端化为负的最优运行成本。积分到 $T$，便恢复上面的最小作用量公式。这也给出经典解的验证方法。
+\end{derivation}
+
+\section{从流构造主方程解}
+
+给定任意三元组 $(t,x,m)$，以 $m$ 为初始分布启动均衡特征流 $m_s=\Sigma_t^s(m)$，再计算代表性玩家从 $x$ 出发的价值，便定义 $U(t,x,m)$。如果流对初值 $m$ 光滑依赖，$U$ 的 Lions 导数存在，第三讲的链式法则就把这个构造验证为主方程经典解。
+
+\begin{pitfall}[特征线交叉就是光滑性危机]
+若两个不同初始点被流送到同一点，$\Phi_s^t$ 不再可逆；价值函数的梯度可能形成折角。此后经典特征线不能覆盖全局，需要弱解或黏性解。第十讲会用测试函数取代不存在的导数。
+\end{pitfall}
+
+\begin{examplebox}[线性流]
+若 $v_t(x)=Ax$，则 $\Phi_0^t(x)=e^{tA}x$，$m_t=(e^{tA})_\#m_0$。只要矩阵指数可逆，流满足半群；若 $A=-I$，质量指数收缩且二阶矩按 $e^{-2t}$ 衰减。
+\end{examplebox}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item $X_t$ 跟踪粒子，$m_t=(X_t)_\#m_0$ 跟踪分布；
+  \item 推前公式对测试函数求导，得到连续性方程；
+  \item HJ 的特征线是位置--动量 Hamilton 系统；
+  \item 流的半群支持动态拼接，流的折叠预示经典解失效。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 从 $m_t=(\Phi_0^t)_\#m_0$ 严格写出连续性方程的弱形式。
+  \item 对常速度场 $v(x)=c$ 求 $\Phi_s^t$ 与 $m_t$，并验证半群性质。
+  \item 说明“最优轨迹满足特征方程”与“值函数满足 HJ 方程”之间的 Legendre 对偶步骤。
+\end{enumerate}
+\end{exercisebox}

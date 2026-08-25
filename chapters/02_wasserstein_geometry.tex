@@ -1,0 +1,170 @@
+\chapter{Wasserstein 空间的几何}
+\lectureribbon{02}{On a Mean Field Game Equation II}{Wilfrid Gangbo}
+\begin{learninggoals}
+\begin{itemize}
+  \item 把“两个分布有多远”写成最优搬运问题；
+  \item 理解概率测度空间为何像一个无限维流形：有曲线、速度和切空间；
+  \item 掌握沿连续性方程的链式法则，为主方程中的分布导数做准备。
+\end{itemize}
+\end{learninggoals}
+
+\section{概率分布为什么需要自己的距离}
+
+平均场博弈中的状态不只是 $x\in\R^d$，还包括一份概率分布 $m$。弱收敛能够描述“积分是否收敛”，却没有直接告诉我们移动质量需要多少代价。对于有限二阶矩的概率测度
+\[
+\PP_2(\R^d)=\left\{\mu:\ \mu(\R^d)=1,
+\ \int_{\R^d}\abs x^2\mu(\dd x)<\infty\right\},
+\]
+二阶 Wasserstein 距离把几何位置纳入比较。
+
+\begin{definition}[耦合与 Wasserstein 距离]
+若 $\gamma$ 在 $\R^d\times\R^d$ 上的两个边缘分布分别是 $\mu,\nu$，则称 $\gamma\in\Gamma(\mu,\nu)$ 是二者的耦合。定义
+\focusequation{$W_2$：最省力的搬运方案}{%
+\[
+W_2^2(\mu,\nu)=
+\inf_{\gamma\in\Gamma(\mu,\nu)}
+\int_{\R^d\times\R^d}\abs{x-y}^2\,\gamma(\dd x,\dd y).
+\]}
+耦合 $\gamma$ 说明从 $x$ 出发的质量有多少被送到 $y$；积分是总搬运能量。
+\end{definition}
+
+\begin{center}
+\begin{tikzpicture}[scale=.95]
+  \node[font=\sffamily\small,text=BlueAccent] at (-3.3,2.2) {源分布 $\mu$};
+  \node[font=\sffamily\small,text=YellowAccent] at (3.3,2.2) {目标分布 $\nu$};
+  \foreach \x/\y in {-4/1.3,-3.5/.4,-3.1/1.6,-2.7/-.5,-2.2/.7}{\fill[BlueAccent] (\x,\y) circle (3pt);}
+  \foreach \x/\y in {2.1/1.1,2.8/-.3,3.25/1.6,3.75/.25,4.2/1.15}{\fill[YellowAccent] (\x,\y) circle (3pt);}
+  \draw[flow,opacity=.85] (-4,1.3) to[bend left=14] (2.1,1.1);
+  \draw[flow,opacity=.65] (-3.5,.4) to[bend right=8] (2.8,-.3);
+  \draw[flow,opacity=.75] (-3.1,1.6) to[bend left=6] (3.25,1.6);
+  \draw[flow,opacity=.55] (-2.7,-.5) to[bend right=15] (3.75,.25);
+  \draw[flow,opacity=.65] (-2.2,.7) to[bend left=10] (4.2,1.15);
+  \node[conceptpurple] at (0,-1.65) {在所有连线方案中，选择平方距离总和最小者};
+\end{tikzpicture}
+\captionof{figure}{Wasserstein 距离不是比较柱状图的高度，而是计算把一团质量搬成另一团质量所需的最小功。}
+\end{center}
+
+若最优耦合由映射 $T$ 诱导，即 $T_\#\mu=\nu$，则
+\[
+W_2^2(\mu,\nu)=\int\abs{x-T(x)}^2\mu(\dd x).
+\]
+这里 $T_\#\mu$ 称为\keyterm{推前测度}，含义是：若 $X\sim\mu$，则 $T(X)\sim T_\#\mu$。
+
+\begin{examplebox}[两个 Dirac 质量]
+对 $\mu=\delta_a,\nu=\delta_b$，只有一种耦合，故 $W_2(\delta_a,\delta_b)=\abs{a-b}$。这说明 Wasserstein 空间把欧氏空间作为 Dirac 测度子空间嵌入其中。
+\end{examplebox}
+
+\section{从随机变量看：Wasserstein 空间是 Hilbert 空间的商}
+
+取一个足够丰富的无原子概率空间 $(\Omega,\mathcal A,\Pp)$，令
+\[
+\mathcal H=L^2(\Omega;\R^d),\qquad X\longmapsto\Law(X).
+\]
+许多不同的随机变量具有同一分布；因此 law map 把 $\mathcal H$ 中所有“仅差重排”的点识别起来。关键恒等式是
+\[
+W_2^2(\mu,\nu)
+=\inf\left\{\E\abs{X-Y}^2:\ \Law(X)=\mu,\ \Law(Y)=\nu\right\}.
+\]
+
+\begin{intuition}[商空间图像]
+Hilbert 空间里有大量带标签的粒子配置。抹去标签，只保留直方图或概率云，就得到 Wasserstein 空间。$W_2$ 是在所有可能标签匹配中选出的最短 $L^2$ 距离。
+\end{intuition}
+
+\begin{center}
+\begin{tikzpicture}[node distance=15mm]
+  \node[concept] (x1) {$X_1(\omega)$};
+  \node[concept,below=7mm of x1] (x2) {$X_2(\omega)$};
+  \node[concept,below=7mm of x2] (x3) {$X_3(\omega)$};
+  \node[conceptpurple,right=28mm of x2,minimum height=22mm] (law) {同一分布\\$\mu=\Law(X_k)$};
+  \draw[flow] (x1)--(law);
+  \draw[flow] (x2)--(law);
+  \draw[flow] (x3)--(law);
+  \node[font=\scriptsize\sffamily,text=MutedText,below=4mm of law] {抹去样本标签，只保留质量位置};
+\end{tikzpicture}
+\captionof{figure}{law map 的纤维：不同随机变量可以代表 Wasserstein 空间中的同一点。}
+\end{center}
+
+\section{测度曲线、速度场与连续性方程}
+
+在欧氏空间中，曲线 $x_t$ 的速度是 $\dot x_t$。在概率测度空间中，曲线 $\mu_t$ 的速度由向量场 $v_t(x)$ 表示，并满足
+\focusequation{质量守恒}{%
+\[
+\partial_t\mu_t+\nabla\cdot(v_t\mu_t)=0.
+\]}
+这就是连续性方程。它的弱形式为：对任意光滑紧支撑测试函数 $\varphi$，
+\[
+\frac{\dd}{\dd t}\int\varphi(x)\mu_t(\dd x)
+=\int\nabla\varphi(x)\cdot v_t(x)\mu_t(\dd x).
+\]
+速度的最小动能 $\norm{v_t}_{L^2(\mu_t)}$ 等于曲线的度量速度 $\abs{\dot\mu_t}$。因此“测度在动”可以严格地翻译成“质量被速度场搬运”。
+
+\begin{definition}[Wasserstein 切空间]
+在 $\mu$ 处的切空间通常取为梯度场在 $L^2(\mu)$ 中的闭包：
+\[
+T_\mu\PP_2(\R^d)
+=\overline{\{\nabla\phi:\ \phi\in C_c^\infty(\R^d)\}}^{L^2(\mu)}.
+\]
+只保留梯度部分，是因为同一个测度曲线可由多个速度场表示；最小范数代表是梯度场。
+\end{definition}
+
+\section{Wasserstein 测地线}
+
+若 $T$ 是从 $\mu_0$ 到 $\mu_1$ 的最优搬运映射，则
+\[
+\mu_s=\bigl((1-s)\operatorname{Id}+sT\bigr)_\#\mu_0,
+\qquad 0\le s\le1,
+\]
+是一条常速测地线。每个质量粒子沿直线前进，但整份分布走的是 Wasserstein 空间中的“直线”。
+
+\begin{center}
+\begin{tikzpicture}[x=1.1cm,y=1cm]
+  \draw[softflow] (-4,0)--(4.2,0) node[right,font=\scriptsize\sffamily] {$s$};
+  \foreach \s/\c in {0/BlueAccent,1.5/PurpleAccent,3/GreenAccent,4.5/YellowAccent}{
+    \draw[\c,very thick,domain=-1.2:1.2,samples=50] plot ({\s-2.25+.18*\x},{1.55*exp(-2.2*(\x)^2)-1.15});
+  }
+  \node[font=\scriptsize\sffamily,text=BlueAccent] at (-2.25,.75) {$\mu_0$};
+  \node[font=\scriptsize\sffamily,text=YellowAccent] at (2.25,.75) {$\mu_1$};
+  \draw[flow] (-1.9,1.2)--(1.9,1.2);
+\end{tikzpicture}
+\captionof{figure}{测地线把最优匹配的每一小团质量按恒定速度插值。}
+\end{center}
+
+\section{分布泛函的梯度与链式法则}
+
+设 $\mathcal F:\PP_2(\R^d)\to\R$ 足够光滑。它的 Wasserstein 梯度记为 $D_\mu\mathcal F(\mu)(x)\in T_\mu\PP_2$。若 $(\mu_t,v_t)$ 满足连续性方程，则
+\focusequation{分布空间的链式法则}{%
+\[
+\frac{\dd}{\dd t}\mathcal F(\mu_t)
+=\int_{\R^d}
+D_\mu\mathcal F(\mu_t)(x)\cdot v_t(x)\,\mu_t(\dd x).
+\]}
+它与欧氏链式法则 $\frac{\dd}{\dd t}f(x_t)=\nabla f(x_t)\cdot\dot x_t$ 完全同构，只是内积变成了 $L^2(\mu_t)$ 内积。
+
+\begin{examplebox}[二阶矩泛函]
+令 $\mathcal F(\mu)=\tfrac12\int\abs x^2\mu(\dd x)$，则 $D_\mu\mathcal F(\mu)(x)=x$。于是
+\[
+\frac{\dd}{\dd t}\mathcal F(\mu_t)=\int x\cdot v_t(x)\mu_t(\dd x).
+\]
+若 $v_t(x)=-x$，二阶矩以指数速度下降，质量向原点收缩。
+\end{examplebox}
+
+\begin{pitfall}[“对密度求导”不是完整定义]
+测度可能没有密度，或者含有 Dirac 质量。因此 Wasserstein 微分必须以推前、耦合或 Hilbert 提升为基础，而不能只对 $\rho(x)$ 做形式偏导。下一讲的 Lions 导数正是把这一点变成可计算工具。
+\end{pitfall}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item $W_2$ 衡量最小二次搬运成本；
+  \item 随机变量的 $L^2$ 空间经“同分布”识别后，产生 Wasserstein 几何；
+  \item 测度曲线的速度由连续性方程中的 $v_t$ 表示；
+  \item 分布泛函的链式法则是普通梯度内积的无限维版本。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 证明 $W_2(\delta_a,\delta_b)=\abs{a-b}$，并写出对应测地线。
+  \item 若 $\mu_t=(e^{-t}\operatorname{Id})_\#\mu_0$，求一个满足连续性方程的速度场。
+  \item 对 $\mathcal F(\mu)=\int V(x)\mu(\dd x)$，猜测 $D_\mu\mathcal F$，再用链式法则验证。
+\end{enumerate}
+\end{exercisebox}

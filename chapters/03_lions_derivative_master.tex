@@ -1,0 +1,171 @@
+\chapter{Lions 导数与主方程}
+\lectureribbon{03}{On a Mean Field Game Equation III}{Wilfrid Gangbo}
+\begin{learninggoals}
+\begin{itemize}
+  \item 用 Hilbert 提升把“对概率测度求导”化为 Fréchet 导数；
+  \item 区分线性泛函导数 $\delta/\delta m$ 与 Lions 导数 $D_m$；
+  \item 从均衡流上的链式法则看懂主方程的每一项；
+  \item 理解主方程如何统一近似有限玩家值函数。
+\end{itemize}
+\end{learninggoals}
+
+\section{Hilbert 提升：先给随机变量求导，再忘掉标签}
+
+设 $\mathcal F:\PP_2(\R^d)\to\R$。在 $\mathcal H=L^2(\Omega;\R^d)$ 上定义提升
+\[
+\widetilde{\mathcal F}(X)=\mathcal F(\Law(X)).
+\]
+提升函数对所有保持分布的重排不变。若 $\widetilde{\mathcal F}$ 在 $X$ 处 Fréchet 可微，则存在 $D\widetilde{\mathcal F}(X)\in\mathcal H$，使
+\[
+\widetilde{\mathcal F}(X+Y)-\widetilde{\mathcal F}(X)
+=\E\!\left[D\widetilde{\mathcal F}(X)\cdot Y\right]+o(\norm Y_{L^2}).
+\]
+重排不变性迫使该导数只通过 $X$ 的取值发挥作用：存在向量场 $D_m\mathcal F(\mu)(\cdot)$，使得
+\focusequation{Lions 导数的表示}{%
+\[
+D\widetilde{\mathcal F}(X)
+=D_m\mathcal F(\Law(X))(X).
+\]}
+
+\begin{center}
+\begin{tikzpicture}[node distance=14mm and 18mm]
+  \node[concept] (measure) {$\mathcal F(\mu)$\\测度空间};
+  \node[conceptpurple,right=of measure] (lift) {$\widetilde{\mathcal F}(X)$\\Hilbert 空间};
+  \node[conceptyellow,right=of lift] (frechet) {$D\widetilde{\mathcal F}(X)$\\Fréchet 导数};
+  \node[conceptgreen,below=of lift] (lions) {$D_m\mathcal F(\mu)(x)$\\Lions 导数};
+  \draw[flow] (measure)--node[above,font=\scriptsize\sffamily,text=MutedText]{提升} (lift);
+  \draw[warmflow] (lift)--node[above,font=\scriptsize\sffamily,text=MutedText]{求导} (frechet);
+  \draw[softflow] (frechet) to[bend left=10] node[right,font=\scriptsize\sffamily,text=MutedText]{按 $X$ 表示} (lions);
+  \draw[softflow] (lions) to[bend left=10] node[left,font=\scriptsize\sffamily,text=MutedText]{下降到分布} (measure);
+\end{tikzpicture}
+\captionof{figure}{Lions 微分的策略：在平坦的 Hilbert 空间求导，再利用对称性降回概率测度空间。}
+\end{center}
+
+\section{两种常见“分布导数”}
+
+若存在标量函数 $\frac{\delta\mathcal F}{\delta m}(m,x)$，使小扰动 $m+\varepsilon(\nu-m)$ 满足
+\[
+\left.\frac{\dd}{\dd\varepsilon}\mathcal F\bigl(m+\varepsilon(\nu-m)\bigr)\right|_{\varepsilon=0}
+=\int\frac{\delta\mathcal F}{\delta m}(m,x)(\nu-m)(\dd x),
+\]
+则它称为线性泛函导数，只确定到一个与 $x$ 无关的常数。Wasserstein/Lions 向量导数通常是
+\[
+D_m\mathcal F(m,x)=D_x\frac{\delta\mathcal F}{\delta m}(m,x).
+\]
+
+\begin{examplebox}[势能与相互作用能]
+若
+\[
+\mathcal F(m)=\int V(x)m(\dd x)
++\frac12\iint W(x-y)m(\dd x)m(\dd y),
+\]
+则
+\[
+\frac{\delta\mathcal F}{\delta m}(m,x)
+=V(x)+(W*m)(x),\qquad
+D_m\mathcal F(m,x)=\nabla V(x)+(\nabla W*m)(x).
+\]
+第一项是外场，第二项是群体平均相互作用力。
+\end{examplebox}
+
+\section{主方程的来源：沿所有均衡流同时使用链式法则}
+
+令 $U(t,x,m)$ 表示在时刻 $t$、个体状态 $x$、群体分布 $m$ 下的均衡价值。对某条均衡流 $m_t$，令
+\[
+u(t,x)=U(t,x,m_t).
+\]
+那么
+\[
+\frac{\dd}{\dd t}U(t,x,m_t)
+=\partial_tU(t,x,m_t)
++\int D_mU(t,x,m_t,y)\cdot v_t(y)m_t(\dd y).
+\]
+当群体最优速度为 $v_t(y)=-D_pH(y,D_xU(t,y,m_t))$ 时，把这条链式法则代入个体 HJ 方程，就得到第一阶主方程的典型结构：
+
+\begin{derivation}[第一阶主方程：结构式]
+采用第一讲的 Hamiltonian 约定，一种常见写法是
+\[
+\begin{aligned}
+-\partial_tU(t,x,m)
+&+H\bigl(x,D_xU(t,x,m)\bigr)\\
+&+\int_{\R^d}D_mU(t,x,m,y)\cdot
+D_pH\bigl(y,D_xU(t,y,m)\bigr)m(\dd y)
+=F(x,m),
+\end{aligned}
+\]
+终端条件为 $U(T,x,m)=G(x,m)$。加入个体噪声或共同噪声后，还会出现关于 $x$ 与 $m$ 的二阶项；不同 Hamiltonian 定义会改变若干符号。
+\end{derivation}
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm and 15mm]
+  \node[conceptyellow] (time) {$-\partial_tU$\\时间回溯};
+  \node[concept,right=of time] (self) {$H(x,D_xU)$\\个体最优};
+  \node[conceptpurple,right=of self] (mean) {$\int D_mU\cdot v\,\dd m$\\分布被搬运};
+  \node[conceptgreen,right=of mean] (cost) {$F(x,m)$\\群体成本};
+  \draw[warmflow] (time)--(self);
+  \draw[flow] (self)--(mean);
+  \draw[softflow] (mean)--(cost);
+\end{tikzpicture}
+\captionof{figure}{主方程的四块拼图：时间、个体状态、总体分布与耦合成本。}
+\end{center}
+
+\section{从主方程回到 MFG 系统}
+
+若 $U$ 足够光滑，给定 $m_0$，先解前向方程
+\[
+\partial_t m_t-\nabla\cdot\left(m_tD_pH\bigl(x,D_xU(t,x,m_t)\bigr)\right)=0,
+\qquad m(0)=m_0,
+\]
+再令 $u(t,x)=U(t,x,m_t)$。链式法则保证 $(u,m)$ 满足 MFG 系统。换句话说，主方程是一台“均衡解生成器”：输入任意 $m_0$，输出对应的均衡轨道。
+
+\section{有限玩家近似：一个函数编码所有玩家}
+
+对称 $N$ 人博弈中，第 $i$ 个玩家的值函数依赖 $(x_1,\ldots,x_N)$。主方程建议近似
+\[
+v^{N,i}(t,x_1,\ldots,x_N)
+\approx U\!\left(t,x_i,m_{\symbf{x}}^{N,i}\right),
+\qquad
+m_{\symbf{x}}^{N,i}=\frac1{N-1}\sum_{j\ne i}\delta_{x_j}.
+\]
+对 $x_j$ 求导时，分布变量的变化带来 $1/(N-1)$ 因子：
+\[
+D_{x_j}v^{N,i}
+\approx\frac1{N-1}D_mU\!\left(t,x_i,m_{\symbf{x}}^{N,i},x_j\right),
+\qquad j\ne i.
+\]
+这正是主方程能近似 Nash 系统的尺度机制：每个其他玩家的影响很小，但 $N-1$ 个小影响加总为 $O(1)$。
+
+\begin{intuition}[为什么常先得到短时经典解]
+主方程是高维、非线性、带分布变量的特征方程。短时间内，特征流通常尚未折叠，导数估计可闭合；时间太长时，不同特征可能交叉，经典光滑性会丢失。因此“短时存在”不是技术偶然，而与 HJ 方程形成激波的几何现象一致。
+\end{intuition}
+
+\section{解流与半群记号}
+
+令 $\Sigma_s^t$ 表示从时刻 $s$ 的分布出发，沿均衡反馈演化到时刻 $t$：
+\[
+m_t=\Sigma_s^t(m_s),\qquad
+\Sigma_r^t=\Sigma_s^t\circ\Sigma_r^s
+\quad(r\le s\le t).
+\]
+半群性质就是“先走到 $s$，再从 $s$ 走到 $t$，等于一次走完”。它把均衡轨道组织成流，也是下一讲特征线方法的核心。
+
+\begin{pitfall}[主方程不是把 $m$ 当有限维参数]
+$m$ 的扰动是一整个位移场，导数 $D_mU(t,x,m,y)$ 还多出一个空间变量 $y$。漏掉 $y$，就看不见群体在不同位置移动对个体价值的不同影响。
+\end{pitfall}
+
+\begin{takeaway}
+\begin{enumerate}
+  \item Lions 导数来自 law-invariant Hilbert 提升的 Fréchet 导数；
+  \item $D_m$ 是向量场，而 $\delta/\delta m$ 是只确定到常数的标量；
+  \item 主方程是沿均衡分布流对 $U(t,x,m_t)$ 使用链式法则的结果；
+  \item $U(t,x,m)$ 同时生成 MFG 轨道，并以 $1/N$ 尺度近似有限玩家 Nash 系统。
+\end{enumerate}
+\end{takeaway}
+
+\begin{exercisebox}
+\begin{enumerate}
+  \item 对 $\mathcal F(m)=\abs{\int x\,m(\dd x)}^2$，计算 $\delta\mathcal F/\delta m$ 与 $D_m\mathcal F$。
+  \item 解释为什么 $D_{x_j}U(t,x_i,m_{\symbf{x}}^{N,i})$ 自然带 $1/(N-1)$。
+  \item 沿给定连续性方程重新推导主方程中的积分项，并核对符号。
+\end{enumerate}
+\end{exercisebox}

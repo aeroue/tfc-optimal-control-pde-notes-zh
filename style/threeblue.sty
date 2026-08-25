@@ -1,0 +1,264 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{style/threeblue}[2026/08/25 Visual system for Optimal Control and PDE notes]
+
+% ---------- Engine, page and fonts ----------
+\RequirePackage{fontspec}
+\RequirePackage{xeCJK}
+\RequirePackage{mathtools}
+\RequirePackage{unicode-math}
+\RequirePackage[a4paper,margin=22mm,headheight=22pt,headsep=7mm,footskip=12mm]{geometry}
+\defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\setmainfont{TeX Gyre Pagella}
+\setsansfont{TeX Gyre Heros}
+\setmonofont{DejaVu Sans Mono}[Scale=0.86]
+\setmathfont{TeX Gyre Pagella Math}
+\setCJKmainfont{Microsoft YaHei}[BoldFont={Microsoft YaHei Bold}]
+\setCJKsansfont{Microsoft YaHei}[BoldFont={Microsoft YaHei Bold}]
+\setCJKmonofont{Microsoft YaHei}
+\linespread{1.16}
+
+% ---------- Core packages ----------
+\RequirePackage[dvipsnames,table]{xcolor}
+\RequirePackage{pagecolor}
+\RequirePackage{amsmath}
+\RequirePackage{microtype}
+\RequirePackage{booktabs}
+\RequirePackage{array}
+\RequirePackage{tabularx}
+\RequirePackage{enumitem}
+\RequirePackage{titlesec}
+\RequirePackage{fancyhdr}
+\RequirePackage{tikz}
+\usetikzlibrary{arrows.meta,backgrounds,calc,decorations.pathmorphing,fit,intersections,matrix,patterns.meta,positioning,shapes.geometric,shadows.blur}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{hyperref}
+\RequirePackage{bookmark}
+\RequirePackage{etoolbox}
+\RequirePackage{ragged2e}
+\RequirePackage{multicol}
+\RequirePackage{graphicx}
+\RequirePackage{caption}
+\RequirePackage{float}
+
+% ---------- 3Blue1Brown-inspired palette ----------
+\definecolor{DeepSpace}{HTML}{0B1020}
+\definecolor{NightPanel}{HTML}{131B2E}
+\definecolor{NightPanelTwo}{HTML}{19243A}
+\definecolor{SoftWhite}{HTML}{F5F1E8}
+\definecolor{MutedText}{HTML}{BAC4D6}
+\definecolor{GridLine}{HTML}{2A3853}
+\definecolor{BlueAccent}{HTML}{58C4DD}
+\definecolor{BlueDeep}{HTML}{236B8E}
+\definecolor{YellowAccent}{HTML}{F4D35E}
+\definecolor{GreenAccent}{HTML}{83C167}
+\definecolor{RedAccent}{HTML}{FC6255}
+\definecolor{PurpleAccent}{HTML}{A080C0}
+\definecolor{OrangeAccent}{HTML}{F39C5A}
+
+\pagecolor{DeepSpace}
+\color{SoftWhite}
+\AtBeginDocument{\color{SoftWhite}}
+
+% ---------- PDF metadata and links ----------
+\hypersetup{
+  hypertexnames=false,
+  colorlinks=true,
+  linkcolor=BlueAccent,
+  citecolor=GreenAccent,
+  urlcolor=YellowAccent,
+  pdfcreator={XeLaTeX},
+  pdfproducer={TeX Live 2025}
+}
+\urlstyle{same}
+
+% ---------- Typography ----------
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em}
+\setlist{itemsep=0.25em,topsep=0.45em,leftmargin=2.2em}
+\setlist[itemize,1]{label=\textcolor{BlueAccent}{\small$\blacktriangleright$}}
+\setlist[itemize,2]{label=\textcolor{YellowAccent}{$\bullet$}}
+\setlist[enumerate,1]{label=\textcolor{YellowAccent}{\bfseries\arabic*.}}
+\renewcommand{\arraystretch}{1.25}
+\captionsetup{hypcap=false,font=small,labelfont={bf,color=BlueAccent},textfont={color=MutedText}}
+
+% ---------- Running header/footer ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\small\textcolor{MutedText}{最优控制与偏微分方程}}
+\fancyhead[R]{\sffamily\small\textcolor{BlueAccent}{\nouppercase{\leftmark}}}
+\fancyfoot[L]{\sffamily\scriptsize\textcolor{MutedText}{TFC \textperiodcentered{} 中文精校讲义}}
+\fancyfoot[R]{\sffamily\bfseries\textcolor{YellowAccent}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{GridLine}\leaders\hrule height \headrulewidth\hfill}}
+\fancypagestyle{plain}{\pagestyle{fancy}}
+
+% ---------- Chapter and section style ----------
+\titleformat{\chapter}[display]
+  {\sffamily\bfseries\color{SoftWhite}}
+  {\begin{tikzpicture}[baseline=(n.base)]
+     \node[rounded corners=4pt,fill=BlueAccent,text=DeepSpace,inner xsep=10pt,inner ysep=5pt,font=\sffamily\bfseries] (n) {LECTURE\,\thechapter};
+   \end{tikzpicture}}
+  {0.8em}
+  {\Huge\raggedright}
+  [\vspace{0.5em}{\color{GridLine}\titlerule[0.8pt]}]
+\titlespacing*{\chapter}{0pt}{-8mm}{10mm}
+
+\titleformat{\section}
+  {\Large\sffamily\bfseries\color{SoftWhite}}
+  {\textcolor{BlueAccent}{\thesection}}
+  {0.7em}{}
+\titleformat{\subsection}
+  {\large\sffamily\bfseries\color{SoftWhite}}
+  {\textcolor{YellowAccent}{\thesubsection}}
+  {0.7em}{}
+\titleformat{\subsubsection}
+  {\normalsize\sffamily\bfseries\color{GreenAccent}}
+  {}{0pt}{}
+
+% ---------- Reusable semantic colors ----------
+\newcommand{\blue}[1]{\textcolor{BlueAccent}{#1}}
+\newcommand{\yellow}[1]{\textcolor{YellowAccent}{#1}}
+\newcommand{\green}[1]{\textcolor{GreenAccent}{#1}}
+\newcommand{\red}[1]{\textcolor{RedAccent}{#1}}
+\newcommand{\purple}[1]{\textcolor{PurpleAccent}{#1}}
+\newcommand{\keyterm}[1]{\textcolor{BlueAccent}{\bfseries #1}}
+\newcommand{\emterm}[1]{\textcolor{YellowAccent}{\bfseries #1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Pp}{\mathbb{P}}
+\newcommand{\Law}{\mathcal{L}}
+\newcommand{\PP}{\mathcal{P}}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\Tr}{\operatorname{Tr}}
+\newcommand{\dd}{\,\mathrm{d}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\ip}[2]{\left\langle #1,#2\right\rangle}
+\newcommand{\bmalpha}{\symbf{\alpha}}
+
+% ---------- Tcolorbox system ----------
+\tcbset{
+  enhanced,
+  breakable,
+  boxrule=0.7pt,
+  arc=3mm,
+  outer arc=3mm,
+  left=4mm,right=4mm,top=3mm,bottom=3mm,
+  before skip=0.8em,after skip=0.8em,
+  fonttitle=\sffamily\bfseries,
+  coltext=SoftWhite,
+  colback=NightPanel,
+  colframe=GridLine
+}
+
+\newtcolorbox{learninggoals}[1][本讲目标]{
+  title={\textcolor{DeepSpace}{#1}},
+  colback=BlueAccent!8!DeepSpace,
+  colframe=BlueAccent,
+  colbacktitle=BlueAccent,
+  coltitle=DeepSpace,
+  borderline west={2mm}{0pt}{BlueAccent}
+}
+\newtcolorbox{intuition}[1][直觉]{
+  title={#1},colback=BlueAccent!7!DeepSpace,colframe=BlueAccent,
+  coltitle=BlueAccent,borderline west={1.5mm}{0pt}{BlueAccent}
+}
+\newtcolorbox{definition}[1][定义]{
+  title={#1},colback=PurpleAccent!8!DeepSpace,colframe=PurpleAccent,
+  coltitle=PurpleAccent,borderline west={1.5mm}{0pt}{PurpleAccent}
+}
+\newtcolorbox{theorem}[1][结论]{
+  title={#1},colback=GreenAccent!7!DeepSpace,colframe=GreenAccent,
+  coltitle=GreenAccent,borderline west={1.5mm}{0pt}{GreenAccent}
+}
+\newtcolorbox{derivation}[1][推导]{
+  title={#1},colback=YellowAccent!6!DeepSpace,colframe=YellowAccent,
+  coltitle=YellowAccent,borderline west={1.5mm}{0pt}{YellowAccent}
+}
+\newtcolorbox{examplebox}[1][微型例子]{
+  title={#1},colback=OrangeAccent!7!DeepSpace,colframe=OrangeAccent,
+  coltitle=OrangeAccent,borderline west={1.5mm}{0pt}{OrangeAccent}
+}
+\newtcolorbox{pitfall}[1][容易混淆]{
+  title={#1},colback=RedAccent!7!DeepSpace,colframe=RedAccent,
+  coltitle=RedAccent,borderline west={1.5mm}{0pt}{RedAccent}
+}
+\newtcolorbox{takeaway}[1][一页记忆]{
+  title={\textcolor{DeepSpace}{#1}},
+  colback=YellowAccent!7!DeepSpace,
+  colframe=YellowAccent,
+  colbacktitle=YellowAccent,
+  coltitle=DeepSpace,
+  borderline west={2mm}{0pt}{YellowAccent}
+}
+\newtcolorbox{exercisebox}[1][思考与练习]{
+  title={#1},colback=NightPanelTwo,colframe=GridLine,coltitle=BlueAccent,
+  borderline north={0.8pt}{0pt}{BlueAccent},borderline south={0.8pt}{0pt}{BlueAccent}
+}
+\newtcolorbox{notationbox}[1][符号导航]{
+  title={#1},colback=NightPanelTwo,colframe=GridLine,coltitle=MutedText
+}
+
+% ---------- Equation focus panel ----------
+\newcommand{\focusequation}[2]{%
+\begin{tcolorbox}[title={#1},colback=NightPanelTwo,colframe=BlueAccent,coltitle=BlueAccent,
+  halign=center,top=4mm,bottom=4mm]
+  \large #2
+\end{tcolorbox}}
+
+% ---------- Diagram conventions ----------
+\tikzset{
+  >={Stealth[length=3mm,width=2mm]},
+  flow/.style={->,very thick,draw=BlueAccent},
+  warmflow/.style={->,very thick,draw=YellowAccent},
+  softflow/.style={->,thick,draw=MutedText},
+  concept/.style={rounded corners=3pt,draw=BlueAccent,fill=NightPanelTwo,
+    text=SoftWhite,align=center,minimum height=10mm,inner xsep=4mm,font=\sffamily\small},
+  conceptyellow/.style={concept,draw=YellowAccent},
+  conceptgreen/.style={concept,draw=GreenAccent},
+  conceptpurple/.style={concept,draw=PurpleAccent},
+  dotblue/.style={circle,fill=BlueAccent,inner sep=1.8pt},
+  dotyellow/.style={circle,fill=YellowAccent,inner sep=1.8pt},
+  dotgreen/.style={circle,fill=GreenAccent,inner sep=1.8pt},
+  axis/.style={->,draw=MutedText,thick},
+  guide/.style={draw=GridLine,thin,dashed},
+  every node/.append style={text=SoftWhite}
+}
+
+\newenvironment{coursefigure}[1][htbp]
+  {\begin{figure}[#1]\centering\begin{tikzpicture}}
+  {\end{tikzpicture}\end{figure}}
+
+% ---------- Lecture metadata ribbon ----------
+\newcommand{\lectureribbon}[3]{%
+\begin{tcolorbox}[enhanced,breakable=false,colback=NightPanelTwo,colframe=GridLine,
+  boxrule=0.4pt,arc=2mm,left=3mm,right=3mm,top=2mm,bottom=2mm]
+\begin{tabularx}{\textwidth}{@{}>{\sffamily\bfseries\color{BlueAccent}}l X >{\raggedleft\arraybackslash\sffamily\small\color{MutedText}}p{0.28\textwidth}@{}}
+#1 & \textcolor{SoftWhite}{#2} & #3
+\end{tabularx}
+\end{tcolorbox}}
+
+% ---------- Small visual divider ----------
+\newcommand{\visualdivider}{%
+\begin{center}
+\begin{tikzpicture}
+  \draw[GridLine,line width=.5pt] (-3.3,0)--(-.35,0);
+  \fill[BlueAccent] (0,0) circle (1.8pt);
+  \fill[YellowAccent] (.18,0) circle (1.8pt);
+  \fill[GreenAccent] (.36,0) circle (1.8pt);
+  \draw[GridLine,line width=.5pt] (.72,0)--(3.67,0);
+\end{tikzpicture}
+\end{center}}
+
+% ---------- Table helpers ----------
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcommand{\toprulecolor}{\arrayrulecolor{GridLine}}
+
+% ---------- Accessibility and PDF polish ----------
+\emergencystretch=2em
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+\raggedbottom
